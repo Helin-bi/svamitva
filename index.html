@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SVAMITVA – Olpad Villages</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f1923; color: #fff; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Header ── */
+#header { background: #0a1520; padding: 10px 14px 8px; border-bottom: 1px solid #1e2d3d; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+#header-left h1 { font-size: 14px; font-weight: 700; color: #e2f0ff; }
+#header-left p  { font-size: 11px; color: #6b8aa8; margin-top: 1px; }
+
+/* ── GPS status pill ── */
+#gps-pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid #1e2d3d; background: #1a2d40; color: #8aafc8; white-space: nowrap; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+#gps-pill.active { background: #1976d222; border-color: #1976d2; color: #64b5f6; }
+#gps-pill.error  { background: #ef535022; border-color: #ef5350; color: #ef9a9a; }
+
+/* ── Stats bar ── */
+#statsbar { display: flex; gap: 6px; padding: 7px 14px; background: #111d2a; border-bottom: 1px solid #1e2d3d; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+#statsbar::-webkit-scrollbar { display: none; }
+.stat { background: #1a2d40; border-radius: 8px; padding: 5px 10px; white-space: nowrap; flex-shrink: 0; font-size: 11px; color: #8aafc8; }
+.stat strong { display: block; font-size: 15px; font-weight: 700; color: #e2f0ff; line-height: 1.2; }
+
+/* ── Tab bar ── */
+#tabbar { display: flex; background: #0a1520; border-bottom: 1px solid #1e2d3d; flex-shrink: 0; }
+.tab { flex: 1; padding: 9px 0; text-align: center; font-size: 13px; font-weight: 600; color: #6b8aa8; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab.active { color: #64b5f6; border-bottom-color: #1976d2; }
+
+/* ── Filter bar (map only) ── */
+#filterbar { display: flex; gap: 6px; padding: 7px 14px; background: #0f1923; border-bottom: 1px solid #1e2d3d; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+#filterbar::-webkit-scrollbar { display: none; }
+.f-btn { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid #1e2d3d; background: #1a2d40; color: #8aafc8; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.f-btn.active { background: #1976d2; border-color: #1976d2; color: #fff; }
+
+/* ── Map view ── */
+#map-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+#map { flex: 1; z-index: 1; }
+
+/* ── Legend ── */
+#legend { position: absolute; bottom: 90px; right: 10px; background: rgba(10,21,32,0.93); border: 1px solid #1e2d3d; border-radius: 10px; padding: 8px 10px; z-index: 999; font-size: 11px; color: #8aafc8; }
+#legend div { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+#legend div:last-child { margin-bottom: 0; }
+.dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── GPS fab ── */
+#gpsBtn { position: absolute; bottom: 24px; right: 10px; background: #1976d2; border: none; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(25,118,210,0.5); cursor: pointer; z-index: 999; color: #fff; font-size: 20px; }
+#gpsBtn:active { transform: scale(0.93); }
+
+/* ── Bottom panel (map) ── */
+#panel { position: absolute; bottom: -340px; left: 0; right: 0; background: #0a1520; border-top: 1px solid #1e2d3d; border-radius: 20px 20px 0 0; padding: 16px; z-index: 1000; transition: bottom 0.3s ease; box-shadow: 0 -8px 32px rgba(0,0,0,0.6); }
+#panel.open { bottom: 0; }
+#panel-handle { width: 36px; height: 4px; background: #2d4155; border-radius: 2px; margin: 0 auto 14px; }
+#panel-village { font-size: 17px; font-weight: 700; color: #e2f0ff; }
+#panel-code { font-size: 11px; color: #6b8aa8; margin-top: 2px; margin-bottom: 12px; }
+#panel-cards { background: #1a2d40; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+#panel-cards .lbl { font-size: 11px; color: #6b8aa8; }
+#panel-cards .val { font-size: 30px; font-weight: 800; }
+#panel-dist { font-size: 12px; color: #8aafc8; margin-bottom: 10px; }
+#panel-bar { height: 6px; background: #1a2d40; border-radius: 3px; margin-bottom: 14px; overflow: hidden; }
+#panel-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.btn-row { display: flex; gap: 8px; }
+.btn { flex: 1; padding: 12px 8px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-nav  { background: #1976d2; color: #fff; }
+.btn-close{ background: #1a2d40; color: #8aafc8; }
+
+/* ── Table view ── */
+#table-view { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+#tbl-search { margin: 10px 14px 8px; padding: 8px 12px; border-radius: 10px; border: 1px solid #1e2d3d; background: #1a2d40; color: #e2f0ff; font-size: 13px; width: calc(100% - 28px); outline: none; }
+#tbl-search::placeholder { color: #4a6a85; }
+#tbl-sort-row { display: flex; gap: 6px; padding: 0 14px 8px; overflow-x: auto; scrollbar-width: none; }
+#tbl-sort-row::-webkit-scrollbar { display: none; }
+.ts-btn { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid #1e2d3d; background: #1a2d40; color: #8aafc8; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.ts-btn.active { background: #1976d2; border-color: #1976d2; color: #fff; }
+#tbl-wrap { flex: 1; overflow-y: auto; padding: 0 14px 16px; -webkit-overflow-scrolling: touch; }
+.tbl-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #1a2d40; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s; }
+.tbl-row:active { background: #223650; }
+.tbl-rank { font-size: 11px; color: #4a6a85; width: 18px; text-align: center; flex-shrink: 0; }
+.tbl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tbl-name { flex: 1; font-size: 13px; font-weight: 600; color: #e2f0ff; }
+.tbl-code { font-size: 10px; color: #4a6a85; }
+.tbl-right { text-align: right; flex-shrink: 0; }
+.tbl-count { font-size: 16px; font-weight: 800; }
+.tbl-dist  { font-size: 10px; color: #6b8aa8; margin-top: 1px; }
+.tbl-bar-wrap { width: 60px; flex-shrink: 0; }
+.tbl-bar-bg { height: 4px; background: #0f1923; border-radius: 2px; overflow: hidden; }
+.tbl-bar-fill { height: 100%; border-radius: 2px; }
+.tbl-nav { background: #1976d244; border: 1px solid #1976d2; color: #64b5f6; border-radius: 8px; padding: 5px 9px; font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+
+/* ── Leaflet overrides ── */
+.leaflet-popup-content-wrapper { background: #0a1520 !important; border: 1px solid #1e2d3d !important; border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important; color: #e2f0ff !important; padding: 0 !important; }
+.leaflet-popup-content { margin: 0 !important; }
+.leaflet-popup-tip { background: #0a1520 !important; }
+.leaflet-popup-close-button { color: #6b8aa8 !important; top: 6px !important; right: 8px !important; }
+.leaflet-control-zoom { border: 1px solid #1e2d3d !important; border-radius: 8px !important; overflow: hidden; }
+.leaflet-control-zoom a { background: #1a2d40 !important; color: #8aafc8 !important; border-bottom: 1px solid #1e2d3d !important; }
+.leaflet-control-attribution { background: rgba(10,21,32,0.7) !important; color: #3d5569 !important; font-size: 9px !important; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+  <div id="header-left">
+    <h1>&#128205; SVAMITVA &mdash; Olpad Taluka, Surat</h1>
+    <p>34 villages &middot; Property cards issued by GOI</p>
+  </div>
+  <div id="gps-pill" onclick="requestGPS()">&#9711; Get Location</div>
+</div>
+
+<!-- Stats -->
+<div id="statsbar">
+  <div class="stat"><strong>3,942</strong>Total Cards</div>
+  <div class="stat"><strong>34</strong>Villages</div>
+  <div class="stat"><strong>Karanj 259</strong>Top Village</div>
+  <div class="stat" id="s-near"><strong>&mdash;</strong>Nearest</div>
+</div>
+
+<!-- Tabs -->
+<div id="tabbar">
+  <div class="tab active" id="tab-map" onclick="switchTab('map')">&#128506; Map View</div>
+  <div class="tab" id="tab-tbl" onclick="switchTab('table')">&#9776; Table View</div>
+</div>
+
+<!-- MAP VIEW -->
+<div id="map-view">
+  <div id="filterbar">
+    <button class="f-btn active" id="fb-all"  onclick="filterMap('all')">All</button>
+    <button class="f-btn" id="fb-high" onclick="filterMap('high')">High 150+</button>
+    <button class="f-btn" id="fb-med"  onclick="filterMap('medium')">Mid 75&ndash;149</button>
+    <button class="f-btn" id="fb-low"  onclick="filterMap('low')">Low &lt;75</button>
+    <button class="f-btn" id="fb-near" onclick="sortByNearest()">Nearest &#8595;</button>
+  </div>
+  <div id="map"></div>
+  <div id="legend">
+    <div><span class="dot" style="background:#ef5350"></span>200+ cards</div>
+    <div><span class="dot" style="background:#ff9800"></span>100&ndash;199</div>
+    <div><span class="dot" style="background:#4caf50"></span>50&ndash;99</div>
+    <div><span class="dot" style="background:#78909c"></span>Below 50</div>
+  </div>
+  <button id="gpsBtn" onclick="requestGPS()">&#9711;</button>
+</div>
+
+<!-- TABLE VIEW -->
+<div id="table-view">
+  <input id="tbl-search" type="text" placeholder="&#128269; Search village name..." oninput="renderTable()">
+  <div id="tbl-sort-row">
+    <button class="ts-btn active" id="ts-count" onclick="setTblSort('count')">Most Cards &#8595;</button>
+    <button class="ts-btn" id="ts-name"  onclick="setTblSort('name')">A &ndash; Z</button>
+    <button class="ts-btn" id="ts-dist"  onclick="setTblSort('dist')">Nearest First</button>
+  </div>
+  <div id="tbl-wrap"></div>
+</div>
+
+<!-- Bottom panel (map detail) -->
+<div id="panel">
+  <div id="panel-handle"></div>
+  <div id="panel-village">&mdash;</div>
+  <div id="panel-code">&mdash;</div>
+  <div id="panel-cards">
+    <div><div class="lbl">Property Cards Issued</div><div class="val" id="pv-count">0</div></div>
+    <div id="pv-badge" style="font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;border:1px solid transparent;"></div>
+  </div>
+  <div id="panel-dist">&#128205; Enable GPS to see distance</div>
+  <div id="panel-bar"><div id="panel-bar-fill"></div></div>
+  <div class="btn-row">
+    <button class="btn btn-nav"   onclick="navigateTo()">&#128506; Open in Google Maps</button>
+    <button class="btn btn-close" onclick="closePanel()">&#10005; Close</button>
+  </div>
+</div>
+
+<script>
+var villages = [
+  {name:"Karanj",       code:"523686", lat:21.4155, lng:72.6809, count:259},
+  {name:"Kimamli",      code:"523700", lat:21.4242, lng:72.9176, count:257},
+  {name:"Rajnagar",     code:"934507", lat:21.3900, lng:72.7600, count:222},
+  {name:"Kadrama",      code:"523694", lat:21.4063, lng:72.8058, count:186},
+  {name:"Sondlakhara",  code:"523717", lat:21.3666, lng:72.7156, count:179},
+  {name:"Anita",        code:"523698", lat:21.4228, lng:72.8696, count:173},
+  {name:"Sithan",       code:"523734", lat:21.3534, lng:72.8408, count:170},
+  {name:"Morthan",      code:"523724", lat:21.3587, lng:72.8124, count:162},
+  {name:"Atodra",       code:"523736", lat:21.3383, lng:72.7962, count:153},
+  {name:"Achharan",     code:"523735", lat:21.3459, lng:72.8097, count:152},
+  {name:"Kanthraj",     code:"523733", lat:21.3649, lng:72.8408, count:146},
+  {name:"Bhadol",       code:"523695", lat:21.4141, lng:72.8183, count:130},
+  {name:"Asnad",        code:"523709", lat:21.3967, lng:72.7489, count:125},
+  {name:"Bolav",        code:"523699", lat:21.4160, lng:72.8840, count:123},
+  {name:"Kamroli",      code:"523688", lat:21.4050, lng:72.7112, count:117},
+  {name:"Delasa",       code:"523715", lat:21.3580, lng:72.6757, count:111},
+  {name:"Bhatgam",      code:"523720", lat:21.3738, lng:72.7437, count:108},
+  {name:"Mindhi",       code:"523711", lat:21.3874, lng:72.7082, count:103},
+  {name:"Vadoli",       code:"523696", lat:21.4309, lng:72.8405, count:100},
+  {name:"Sondamitha",   code:"523708", lat:21.3830, lng:72.7696, count:100},
+  {name:"Karamla",      code:"523746", lat:21.3144, lng:72.7968, count:95},
+  {name:"Koba",         code:"523691", lat:21.4261, lng:72.7681, count:93},
+  {name:"Pardi Koba",   code:"523692", lat:21.4228, lng:72.7670, count:84},
+  {name:"Gola",         code:"523723", lat:21.3625, lng:72.7932, count:75},
+  {name:"Obhla",        code:"523732", lat:21.3693, lng:72.8582, count:69},
+  {name:"Kunkni",       code:"523781", lat:21.2467, lng:72.7341, count:68},
+  {name:"Asnabad",      code:"523744", lat:21.3266, lng:72.7533, count:49},
+  {name:"Sarsana",      code:"523707", lat:21.3954, lng:72.7769, count:49},
+  {name:"Kachhab",      code:"523726", lat:21.3807, lng:72.8567, count:36},
+  {name:"Takarma",      code:"523706", lat:21.3823, lng:72.7902, count:33},
+  {name:"Balkas",       code:"523763", lat:21.2795, lng:72.7577, count:27},
+  {name:"Thothab",      code:"523690", lat:21.4242, lng:72.7637, count:18},
+  {name:"Dihen",        code:"523782", lat:21.2571, lng:72.6890, count:4},
+  {name:"Naghoi",       code:"523710", lat:21.3822, lng:72.7208, count:2}
+];
+
+var MAX=259, userLat=null, userLng=null, selectedVillage=null, allMarkers=[];
+var tblSort='count', watchStarted=false, gpsM=null, gpsC=null;
+
+/* ─── helpers ─── */
+function getColor(n){ return n>=200?'#ef5350':n>=100?'#ff9800':n>=50?'#4caf50':'#78909c'; }
+function getTier(n) { return n>=200?'Very High':n>=100?'High':n>=50?'Medium':'Low'; }
+function calcDist(la1,ln1,la2,ln2){
+  var R=6371,a=Math.sin((la2-la1)*Math.PI/360)*Math.sin((la2-la1)*Math.PI/360)+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin((ln2-ln1)*Math.PI/360)*Math.sin((ln2-ln1)*Math.PI/360);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fmtDist(d){ return d<1?(d*1000).toFixed(0)+' m':d.toFixed(1)+' km'; }
+
+/* ─── MAP SETUP ─── */
+var map = L.map('map').setView([21.38,72.79],11);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+}).addTo(map);
+
+villages.forEach(function(v){
+  var c=getColor(v.count), r=8+Math.round((v.count/MAX)*14), sz=r*2;
+  var icon=L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>24?10:8)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'55;cursor:pointer;">'+v.count+'</div>',iconSize:[sz,sz],iconAnchor:[r,r]});
+  var m=L.marker([v.lat,v.lng],{icon:icon}).addTo(map);
+  m.on('click',function(){ openPanel(v); });
+  allMarkers.push({marker:m,village:v});
+});
+
+/* ─── PANEL ─── */
+function openPanel(v){
+  selectedVillage=v;
+  var c=getColor(v.count);
+  document.getElementById('panel-village').textContent=v.name;
+  document.getElementById('panel-code').textContent='Code: '+v.code+' · Olpad Taluka, Surat';
+  document.getElementById('pv-count').textContent=v.count;
+  document.getElementById('pv-count').style.color=c;
+  var b=document.getElementById('pv-badge');
+  b.textContent=getTier(v.count); b.style.background=c+'22'; b.style.color=c; b.style.borderColor=c+'55';
+  document.getElementById('panel-bar-fill').style.width=Math.round((v.count/MAX)*100)+'%';
+  document.getElementById('panel-bar-fill').style.background=c;
+  document.getElementById('panel-dist').textContent=userLat!==null
+    ? '\uD83D\uDCCD '+fmtDist(calcDist(userLat,userLng,v.lat,v.lng))+' from your location'
+    : '\uD83D\uDCCD Tap the GPS button to see distance';
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){ document.getElementById('panel').classList.remove('open'); selectedVillage=null; }
+function navigateTo(){
+  if(!selectedVillage) return;
+  window.open('https://www.google.com/maps/dir/?api=1&destination='+selectedVillage.lat+','+selectedVillage.lng+'&travelmode=driving','_blank');
+}
+
+/* ─── MAP FILTERS ─── */
+function setFbActive(id){
+  ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(x){document.getElementById(x).classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+function filterMap(type){
+  setFbActive({all:'fb-all',high:'fb-high',medium:'fb-med',low:'fb-low'}[type]);
+  allMarkers.forEach(function(o){
+    var show=type==='all'||(type==='high'&&o.village.count>=150)||(type==='medium'&&o.village.count>=75&&o.village.count<150)||(type==='low'&&o.village.count<75);
+    show?(!map.hasLayer(o.marker)&&o.marker.addTo(map)):(map.hasLayer(o.marker)&&map.removeLayer(o.marker));
+  });
+}
+function sortByNearest(){
+  if(userLat===null){ alert('Tap the GPS button first to enable your location'); return; }
+  setFbActive('fb-near');
+  var s=villages.slice().sort(function(a,b){return calcDist(userLat,userLng,a.lat,a.lng)-calcDist(userLat,userLng,b.lat,b.lng);});
+  map.setView([s[0].lat,s[0].lng],13);
+  openPanel(s[0]);
+}
+
+/* ─── GPS ─── */
+function setPill(state, text){
+  var p=document.getElementById('gps-pill');
+  p.className='';  p.id='gps-pill';
+  p.classList.add(state==='active'?'active':state==='error'?'error':'');
+  p.textContent=text;
+}
+
+function onGPSSuccess(pos){
+  userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+  setPill('active','\u25CF GPS ON');
+
+  if(gpsM){map.removeLayer(gpsM); map.removeLayer(gpsC);}
+  gpsC=L.circle([userLat,userLng],{radius:pos.coords.accuracy,color:'#1976d2',fillColor:'#1976d2',fillOpacity:0.1,weight:1}).addTo(map);
+  gpsM=L.marker([userLat,userLng],{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#1976d2;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(25,118,210,0.9);"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:1000}).addTo(map);
+
+  var sorted=villages.slice().sort(function(a,b){return calcDist(userLat,userLng,a.lat,a.lng)-calcDist(userLat,userLng,b.lat,b.lng);});
+  document.getElementById('s-near').innerHTML='<strong>'+sorted[0].name+' ('+calcDist(userLat,userLng,sorted[0].lat,sorted[0].lng).toFixed(1)+'km)</strong>Nearest';
+
+  // refresh table distances
+  renderTable();
+}
+
+function onGPSError(err){
+  var msg=err.code===1?'Location blocked – allow in browser settings':'GPS error – try again';
+  setPill('error','\u26A0 '+msg);
+}
+
+function requestGPS(){
+  if(!navigator.geolocation){ alert('Geolocation not supported on this browser'); return; }
+  setPill('','&#9711; Locating...');
+
+  // getCurrentPosition first (required user-gesture on some mobile browsers)
+  navigator.geolocation.getCurrentPosition(function(pos){
+    onGPSSuccess(pos);
+    map.setView([pos.coords.latitude,pos.coords.longitude],13);
+    // start watching after first fix
+    if(!watchStarted){
+      watchStarted=true;
+      navigator.geolocation.watchPosition(onGPSSuccess,onGPSError,{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+    }
+  }, onGPSError, {enableHighAccuracy:true,timeout:15000});
+}
+
+/* ─── TABS ─── */
+function switchTab(t){
+  document.getElementById('tab-map').classList.toggle('active', t==='map');
+  document.getElementById('tab-tbl').classList.toggle('active', t==='table');
+  document.getElementById('map-view').style.display   = t==='map'?'flex':'none';
+  document.getElementById('table-view').style.display = t==='table'?'flex':'none';
+  if(t==='map'){ map.invalidateSize(); }
+  if(t==='table'){ renderTable(); }
+}
+
+/* ─── TABLE ─── */
+function setTblSort(s){
+  tblSort=s;
+  ['ts-count','ts-name','ts-dist'].forEach(function(x){document.getElementById(x).classList.remove('active');});
+  document.getElementById('ts-'+s).classList.add('active');
+  if(s==='dist'&&userLat===null){ alert('Tap GPS button first to enable location'); tblSort='count'; document.getElementById('ts-count').classList.add('active'); return; }
+  renderTable();
+}
+
+function renderTable(){
+  var q=(document.getElementById('tbl-search').value||'').toLowerCase();
+  var rows=villages.filter(function(v){ return v.name.toLowerCase().indexOf(q)>=0; });
+
+  if(tblSort==='count') rows.sort(function(a,b){return b.count-a.count;});
+  else if(tblSort==='name') rows.sort(function(a,b){return a.name.localeCompare(b.name);});
+  else if(tblSort==='dist'&&userLat!==null) rows.sort(function(a,b){return calcDist(userLat,userLng,a.lat,a.lng)-calcDist(userLat,userLng,b.lat,b.lng);});
+
+  var html='';
+  rows.forEach(function(v,i){
+    var c=getColor(v.count);
+    var dStr=userLat!==null?fmtDist(calcDist(userLat,userLng,v.lat,v.lng)):'&mdash;';
+    var barW=Math.round((v.count/MAX)*100);
+    html+='<div class="tbl-row" onclick="onRowTap(\''+v.name+'\')">'
+      +'<span class="tbl-rank">'+(i+1)+'</span>'
+      +'<span class="tbl-dot" style="background:'+c+'"></span>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="tbl-name">'+v.name+'</div>'
+        +'<div class="tbl-code">'+v.code+'</div>'
+        +'<div class="tbl-bar-wrap" style="margin-top:5px;width:100%;max-width:120px;">'
+          +'<div class="tbl-bar-bg"><div class="tbl-bar-fill" style="width:'+barW+'%;background:'+c+'"></div></div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="tbl-right">'
+        +'<div class="tbl-count" style="color:'+c+'">'+v.count+'</div>'
+        +'<div class="tbl-dist">'+dStr+'</div>'
+      +'</div>'
+      +'<button class="tbl-nav" onclick="event.stopPropagation();navTo('+v.lat+','+v.lng+')">Go</button>'
+    +'</div>';
+  });
+  if(!html) html='<p style="text-align:center;color:#4a6a85;padding:30px 0;font-size:13px;">No villages found</p>';
+  document.getElementById('tbl-wrap').innerHTML=html;
+}
+
+function onRowTap(name){
+  var v=villages.find(function(x){return x.name===name;});
+  if(!v) return;
+  // switch to map and open panel
+  switchTab('map');
+  map.setView([v.lat,v.lng],14);
+  openPanel(v);
+}
+
+function navTo(lat,lng){
+  window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank');
+}
+
+map.on('click',closePanel);
+renderTable();
+</script>
+</body>
+</html>
