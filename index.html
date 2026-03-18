@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SVAMITVA – Surat District</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* Header */
+#header{background:#06101a;padding:10px 14px 8px;border-bottom:1px solid #1a2d40;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#header h1{font-size:13px;font-weight:700;color:#e2f0ff;white-space:nowrap}
+#header p{font-size:10px;color:#4a7090;margin-top:1px}
+#gps-pill{font-size:11px;padding:5px 11px;border-radius:20px;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;flex-shrink:0;transition:all .2s;white-space:nowrap}
+#gps-pill.on{background:#0d2a1a;border-color:#2e7d52;color:#4caf50}
+#gps-pill.err{background:#2a0d0d;border-color:#7d2e2e;color:#ef5350}
+
+/* Taluka selector */
+#taluka-bar{display:flex;gap:6px;padding:8px 14px;background:#06101a;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#taluka-bar::-webkit-scrollbar{display:none}
+.tk-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.tk-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
+
+/* Stats */
+#statsbar{display:flex;gap:6px;padding:6px 14px;background:#08131e;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#statsbar::-webkit-scrollbar{display:none}
+.stat{background:#112030;border-radius:8px;padding:5px 10px;white-space:nowrap;flex-shrink:0;font-size:10px;color:#4a7090}
+.stat strong{display:block;font-size:15px;font-weight:700;color:#e2f0ff;line-height:1.2}
+
+/* Tab bar */
+#tabbar{display:flex;background:#06101a;border-bottom:1px solid #1a2d40;flex-shrink:0}
+.tab{flex:1;padding:9px 0;text-align:center;font-size:12px;font-weight:600;color:#4a7090;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#64b5f6;border-bottom-color:#1976d2}
+
+/* Filter bar */
+#filterbar{display:flex;gap:6px;padding:7px 14px;background:#0a1520;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#filterbar::-webkit-scrollbar{display:none}
+.f-btn{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.f-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
+
+/* Map */
+#map-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#map{flex:1;z-index:1}
+
+/* Legend */
+#legend{position:absolute;bottom:86px;right:10px;background:rgba(6,16,26,.93);border:1px solid #1a2d40;border-radius:10px;padding:8px 10px;z-index:999;font-size:11px;color:#6b9ab8}
+#legend div{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+#legend div:last-child{margin-bottom:0}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+
+/* GPS FAB */
+#gpsBtn{position:absolute;bottom:22px;right:10px;background:#1565c0;border:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(21,101,192,.5);cursor:pointer;z-index:999;color:#fff;font-size:19px;transition:transform .15s}
+#gpsBtn:active{transform:scale(.92)}
+
+/* Bottom panel */
+#panel{position:absolute;bottom:-360px;left:0;right:0;background:#06101a;border-top:1px solid #1a2d40;border-radius:18px 18px 0 0;padding:16px;z-index:1000;transition:bottom .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.7)}
+#panel.open{bottom:0}
+#ph{width:34px;height:4px;background:#1a2d40;border-radius:2px;margin:0 auto 14px}
+#pv-name{font-size:17px;font-weight:700;color:#e2f0ff}
+#pv-meta{font-size:11px;color:#4a7090;margin-top:2px;margin-bottom:12px}
+#pv-cards{background:#112030;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+#pv-cards .lbl{font-size:11px;color:#4a7090}
+#pv-cards .val{font-size:30px;font-weight:800}
+#pv-dist{font-size:12px;color:#6b9ab8;margin-bottom:8px}
+#pv-bar{height:5px;background:#112030;border-radius:3px;margin-bottom:14px;overflow:hidden}
+#pv-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.btn-row{display:flex;gap:8px}
+.btn{flex:1;padding:11px 8px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-nav{background:#1565c0;color:#fff}
+.btn-pdf{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50}
+.btn-pdf.unavail{background:#1a1a2a;border-color:#2a2a4a;color:#3a4a6a;cursor:default}
+.btn-close{background:#112030;color:#6b9ab8;flex:0 0 44px;padding:11px 0}
+
+/* Table view */
+#table-view{flex:1;display:none;flex-direction:column;overflow:hidden}
+#tbl-search{margin:10px 14px 6px;padding:9px 12px;border-radius:10px;border:1px solid #1a2d40;background:#112030;color:#e2f0ff;font-size:13px;width:calc(100% - 28px);outline:none}
+#tbl-search::placeholder{color:#2a4a6a}
+#tbl-sort-row{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto;scrollbar-width:none}
+#tbl-sort-row::-webkit-scrollbar{display:none}
+.ts{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ts.active{background:#1565c0;border-color:#1976d2;color:#fff}
+#tbl-wrap{flex:1;overflow-y:auto;padding:0 14px 20px;-webkit-overflow-scrolling:touch}
+
+/* Table rows */
+.tr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#112030;border-radius:10px;margin-bottom:7px;cursor:pointer}
+.tr:active{background:#1a3050}
+.tr-rank{font-size:11px;color:#2a4a6a;width:20px;text-align:center;flex-shrink:0}
+.tr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tr-body{flex:1;min-width:0}
+.tr-name{font-size:13px;font-weight:600;color:#e2f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-sub{font-size:10px;color:#2a4a6a;margin-top:1px}
+.tr-bbar{height:3px;background:#0a1520;border-radius:2px;margin-top:5px;overflow:hidden;max-width:110px}
+.tr-bfill{height:100%;border-radius:2px}
+.tr-right{text-align:right;flex-shrink:0}
+.tr-count{font-size:16px;font-weight:800}
+.tr-dist{font-size:10px;color:#4a7090;margin-top:1px}
+.tr-actions{display:flex;gap:5px;flex-shrink:0}
+.tr-go{background:#1565c044;border:1px solid #1976d2;color:#64b5f6;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tr-pdf{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tr-pdf.na{background:#1a1a2a;border-color:#222;color:#2a3a4a;cursor:default}
+
+/* Leaflet overrides */
+.leaflet-popup-content-wrapper{background:#06101a!important;border:1px solid #1a2d40!important;border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,.6)!important;color:#e2f0ff!important;padding:0!important}
+.leaflet-popup-content{margin:0!important}
+.leaflet-popup-tip{background:#06101a!important}
+.leaflet-popup-close-button{color:#4a7090!important;top:6px!important;right:8px!important}
+.leaflet-control-zoom{border:1px solid #1a2d40!important;border-radius:8px!important;overflow:hidden}
+.leaflet-control-zoom a{background:#112030!important;color:#6b9ab8!important;border-bottom:1px solid #1a2d40!important}
+.leaflet-control-attribution{background:rgba(6,16,26,.7)!important;color:#1a3050!important;font-size:9px!important}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <h1>&#128205; SVAMITVA — Surat District</h1>
+    <p id="hdr-sub">Select a taluka to begin</p>
+  </div>
+  <div id="gps-pill" onclick="requestGPS()">&#9711; Get Location</div>
+</div>
+
+<!-- Taluka selector -->
+<div id="taluka-bar">
+  <button class="tk-btn active" onclick="setTaluka('bardoli',this)">Bardoli</button>
+  <button class="tk-btn" onclick="setTaluka('olpad',this)">Olpad</button>
+  <!-- Add more talukas here later -->
+</div>
+
+<!-- Stats -->
+<div id="statsbar">
+  <div class="stat"><strong id="s-total">—</strong>Total Cards</div>
+  <div class="stat"><strong id="s-villages">—</strong>Villages</div>
+  <div class="stat"><strong id="s-top">—</strong>Top Village</div>
+  <div class="stat" id="s-near-wrap"><strong id="s-near">—</strong>Nearest</div>
+</div>
+
+<!-- Tabs -->
+<div id="tabbar">
+  <div class="tab active" id="tab-map" onclick="switchTab('map')">&#128506; Map</div>
+  <div class="tab" id="tab-tbl" onclick="switchTab('table')">&#9776; Table</div>
+</div>
+
+<!-- MAP VIEW -->
+<div id="map-view">
+  <div id="filterbar">
+    <button class="f-btn active" id="fb-all"  onclick="filterMap('all')">All</button>
+    <button class="f-btn" id="fb-high" onclick="filterMap('high')">High 150+</button>
+    <button class="f-btn" id="fb-med"  onclick="filterMap('medium')">Mid 75-149</button>
+    <button class="f-btn" id="fb-low"  onclick="filterMap('low')">Low &lt;75</button>
+    <button class="f-btn" id="fb-near" onclick="sortByNearest()">Nearest &#8595;</button>
+  </div>
+  <div id="map"></div>
+  <div id="legend">
+    <div><span class="dot" style="background:#ef5350"></span>200+ cards</div>
+    <div><span class="dot" style="background:#ff9800"></span>100-199</div>
+    <div><span class="dot" style="background:#4caf50"></span>50-99</div>
+    <div><span class="dot" style="background:#78909c"></span>Below 50</div>
+  </div>
+  <button id="gpsBtn" onclick="requestGPS()">&#9711;</button>
+</div>
+
+<!-- TABLE VIEW -->
+<div id="table-view">
+  <input id="tbl-search" type="text" placeholder="Search village..." oninput="renderTable()">
+  <div id="tbl-sort-row">
+    <button class="ts active" id="ts-count" onclick="setSort('count')">Most Cards &#8595;</button>
+    <button class="ts" id="ts-name"  onclick="setSort('name')">A - Z</button>
+    <button class="ts" id="ts-dist"  onclick="setSort('dist')">Nearest First</button>
+  </div>
+  <div id="tbl-wrap"></div>
+</div>
+
+<!-- Bottom detail panel -->
+<div id="panel">
+  <div id="ph"></div>
+  <div id="pv-name">—</div>
+  <div id="pv-meta">—</div>
+  <div id="pv-cards">
+    <div><div class="lbl">Property Cards Issued</div><div class="val" id="pv-count">0</div></div>
+    <div id="pv-badge" style="font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;border:1px solid transparent"></div>
+  </div>
+  <div id="pv-dist">&#128205; Tap GPS button to see distance</div>
+  <div id="pv-bar"><div id="pv-bar-fill"></div></div>
+  <div class="btn-row">
+    <button class="btn btn-nav"   onclick="navigateTo()">&#128506; Navigate</button>
+    <button class="btn btn-pdf"   id="btn-pdf-panel" onclick="downloadPDF()">&#8659; Download PDF</button>
+    <button class="btn btn-close" onclick="closePanel()">&#10005;</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA — add new talukas here as objects
+   pdfs: list of village names that have PDFs uploaded
+═══════════════════════════════════════════ */
+var GITHUB_BASE = 'https://Helin-bi.github.io/svamitva-map/pdfs/';
+
+var DATA = {
+  bardoli: {
+    label: 'Bardoli',
+    center: [21.12, 73.15],
+    zoom: 11,
+    pdfs: ['Akoti','Allu','Astan','Bamni','Bamroli','Bhamaiya','Bharampor'],
+    villages: [
+      {name:'Varad',         code:'524283', lat:21.1704, lng:73.1320, count:305},
+      {name:'Samthan',       code:'524279', lat:21.1908, lng:73.1943, count:209},
+      {name:'Uva',           code:'524314', lat:21.1255, lng:73.1122, count:206},
+      {name:'Kantali',       code:'524280', lat:21.1925, lng:73.1792, count:203},
+      {name:'Nizar',         code:'524332', lat:21.0582, lng:73.1217, count:188},
+      {name:'Singod',        code:'524277', lat:21.1972, lng:73.2223, count:180},
+      {name:'Sondlakhara',   code:'524717', lat:21.1706, lng:73.1688, count:179},
+      {name:'Umrakh',        code:'524286', lat:21.1439, lng:73.0815, count:161},
+      {name:'Vadoli',        code:'524339', lat:21.0280, lng:73.0804, count:154},
+      {name:'Uchharel',      code:'524269', lat:21.2110, lng:73.1910, count:135},
+      {name:'Sejvad',        code:'524326', lat:21.0935, lng:73.1999, count:134},
+      {name:'Bhuvasan',      code:'524336', lat:21.0449, lng:73.0693, count:131},
+      {name:'Goji',          code:'524321', lat:21.0698, lng:73.1084, count:127},
+      {name:'Karachaka',     code:'524315', lat:21.1383, lng:73.1932, count:119},
+      {name:'Ninat',         code:'524330', lat:21.0614, lng:73.0652, count:119},
+      {name:'Kharvasa',      code:'524285', lat:21.1586, lng:73.1158, count:116},
+      {name:'Bharampor',     code:'524266', lat:21.1941, lng:73.1378, count:106},
+      {name:'Dhamdod Lumbha',code:'524302', lat:21.1395, lng:73.1368, count:103},
+      {name:'Tarbhon',       code:'524343', lat:21.0201, lng:73.0597, count:103},
+      {name:'Palsod',        code:'524292', lat:21.1706, lng:73.1688, count:108},
+      {name:'Bhamaiya',      code:'524268', lat:21.2098, lng:73.1792, count:100},
+      {name:'Movachhi',      code:'524264', lat:21.1795, lng:73.1084, count:80},
+      {name:'Haripura',      code:'524270', lat:21.2104, lng:73.2065, count:79},
+      {name:'Isanpor',       code:'524284', lat:21.1600, lng:73.1200, count:77},
+      {name:'Isroli',        code:'524319', lat:21.0996, lng:73.1275, count:79},
+      {name:'Masad',         code:'524272', lat:21.2142, lng:73.2434, count:79},
+      {name:'Nasura',        code:'524275', lat:21.2073, lng:73.2504, count:82},
+      {name:'Nadida',        code:'524304', lat:21.1084, lng:73.0874, count:84},
+      {name:'Sankri',        code:'524301', lat:21.1566, lng:73.1674, count:80},
+      {name:'Astan',         code:'524287', lat:21.1442, lng:73.1158, count:109},
+      {name:'Bamni',         code:'524278', lat:21.1897, lng:73.2087, count:90},
+      {name:'Vadhvaniya',    code:'524276', lat:21.2029, lng:73.2463, count:69},
+      {name:'Vadhava',       code:'524308', lat:21.1284, lng:73.1733, count:53},
+      {name:'Rajpura Lumbha',code:'524289', lat:21.1504, lng:73.1482, count:44},
+      {name:'Bamroli',       code:'524322', lat:21.0895, lng:73.1320, count:39},
+      {name:'Ruwa',          code:'524282', lat:21.1750, lng:73.1350, count:33},
+      {name:'Vaghech Sarbhon',code:'524341',lat:21.0200, lng:73.0420, count:33},
+      {name:'Junvani',       code:'524295', lat:21.1806, lng:73.2323, count:36},
+      {name:'Pardi Kadod',   code:'524281', lat:21.1913, lng:73.1674, count:26},
+      {name:'Mangrolia',     code:'524300', lat:21.1571, lng:73.1932, count:4},
+      {name:'Manekpor',      code:'524313', lat:21.0971, lng:73.2353, count:12},
+      {name:'Gotasa',        code:'524323', lat:21.0894, lng:73.1453, count:13},
+      {name:'Allu',          code:'524327', lat:21.0667, lng:73.1910, count:10},
+      {name:'Kuvadiya',      code:'524344', lat:21.0003, lng:73.0494, count:9},
+      {name:'Vankaner',      code:'524328', lat:21.0764, lng:73.1733, count:3},
+      {name:'Pardi Valod',   code:'524333', lat:21.0533, lng:73.1733, count:3},
+      {name:'Pardi Vagha',   code:'524342', lat:21.0195, lng:73.0538, count:1},
+      {name:'Moti Falod',    code:'524265', lat:21.2076, lng:73.1398, count:1},
+      {name:'Akoti',         code:'524293', lat:21.1708, lng:73.1858, count:1},
+    ]
+  },
+  olpad: {
+    label: 'Olpad',
+    center: [21.38, 72.79],
+    zoom: 11,
+    pdfs: [],
+    villages: [
+      {name:'Karanj',       code:'523686', lat:21.4155, lng:72.6809, count:259},
+      {name:'Kimamli',      code:'523700', lat:21.4242, lng:72.9176, count:257},
+      {name:'Rajnagar',     code:'934507', lat:21.3900, lng:72.7600, count:222},
+      {name:'Kadrama',      code:'523694', lat:21.4063, lng:72.8058, count:186},
+      {name:'Sondlakhara',  code:'523717', lat:21.3666, lng:72.7156, count:179},
+      {name:'Anita',        code:'523698', lat:21.4228, lng:72.8696, count:173},
+      {name:'Sithan',       code:'523734', lat:21.3534, lng:72.8408, count:170},
+      {name:'Morthan',      code:'523724', lat:21.3587, lng:72.8124, count:162},
+      {name:'Atodra',       code:'523736', lat:21.3383, lng:72.7962, count:153},
+      {name:'Achharan',     code:'523735', lat:21.3459, lng:72.8097, count:152},
+      {name:'Kanthraj',     code:'523733', lat:21.3649, lng:72.8408, count:146},
+      {name:'Bhadol',       code:'523695', lat:21.4141, lng:72.8183, count:130},
+      {name:'Asnad',        code:'523709', lat:21.3967, lng:72.7489, count:125},
+      {name:'Bolav',        code:'523699', lat:21.4160, lng:72.8840, count:123},
+      {name:'Kamroli',      code:'523688', lat:21.4050, lng:72.7112, count:117},
+      {name:'Delasa',       code:'523715', lat:21.3580, lng:72.6757, count:111},
+      {name:'Bhatgam',      code:'523720', lat:21.3738, lng:72.7437, count:108},
+      {name:'Mindhi',       code:'523711', lat:21.3874, lng:72.7082, count:103},
+      {name:'Vadoli',       code:'523696', lat:21.4309, lng:72.8405, count:100},
+      {name:'Sondamitha',   code:'523708', lat:21.3830, lng:72.7696, count:100},
+      {name:'Karamla',      code:'523746', lat:21.3144, lng:72.7968, count:95},
+      {name:'Koba',         code:'523691', lat:21.4261, lng:72.7681, count:93},
+      {name:'Pardi Koba',   code:'523692', lat:21.4228, lng:72.7670, count:84},
+      {name:'Gola',         code:'523723', lat:21.3625, lng:72.7932, count:75},
+      {name:'Obhla',        code:'523732', lat:21.3693, lng:72.8582, count:69},
+      {name:'Kunkni',       code:'523781', lat:21.2467, lng:72.7341, count:68},
+      {name:'Asnabad',      code:'523744', lat:21.3266, lng:72.7533, count:49},
+      {name:'Sarsana',      code:'523707', lat:21.3954, lng:72.7769, count:49},
+      {name:'Kachhab',      code:'523726', lat:21.3807, lng:72.8567, count:36},
+      {name:'Takarma',      code:'523706', lat:21.3823, lng:72.7902, count:33},
+      {name:'Balkas',       code:'523763', lat:21.2795, lng:72.7577, count:27},
+      {name:'Thothab',      code:'523690', lat:21.4242, lng:72.7637, count:18},
+      {name:'Dihen',        code:'523782', lat:21.2571, lng:72.6890, count:4},
+      {name:'Naghoi',       code:'523710', lat:21.3822, lng:72.7208, count:2}
+    ]
+  }
+};
+
+/* ═══════════════ STATE ═══════════════ */
+var curTaluka = 'bardoli';
+var userLat = null, userLng = null;
+var selVillage = null;
+var allMarkers = [];
+var tblSort = 'count';
+var gpsWatching = false;
+var gpsM = null, gpsC = null;
+var curFilter = 'all';
+
+/* ═══════════════ HELPERS ═══════════════ */
+function gc(n){ return n>=200?'#ef5350':n>=100?'#ff9800':n>=50?'#4caf50':'#78909c'; }
+function tier(n){ return n>=200?'Very High':n>=100?'High':n>=50?'Medium':'Low'; }
+function haversine(a,b,c,d){
+  var R=6371,x=Math.sin((c-a)*Math.PI/360),y=Math.sin((d-b)*Math.PI/360);
+  var p=x*x+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*y*y;
+  return R*2*Math.atan2(Math.sqrt(p),Math.sqrt(1-p));
+}
+function fmtD(d){ return d<1?(d*1000).toFixed(0)+' m':d.toFixed(1)+' km'; }
+function hasPDF(taluka, name){ return DATA[taluka].pdfs.indexOf(name)>=0; }
+function pdfURL(taluka, name){ return GITHUB_BASE+taluka+'/'+name+'.pdf'; }
+
+/* ═══════════════ MAP SETUP ═══════════════ */
+var map = L.map('map').setView([21.12,73.15],11);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+}).addTo(map);
+
+/* ═══════════════ TALUKA SWITCH ═══════════════ */
+function setTaluka(key, btn){
+  curTaluka = key;
+  document.querySelectorAll('.tk-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  curFilter = 'all';
+  document.getElementById('fb-all').classList.add('active');
+  ['fb-high','fb-med','fb-low','fb-near'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  closePanel();
+  loadTaluka();
+}
+
+function loadTaluka(){
+  var td = DATA[curTaluka];
+  // clear markers
+  allMarkers.forEach(function(o){ map.removeLayer(o.marker); });
+  allMarkers = [];
+
+  // update stats
+  var total = td.villages.reduce(function(s,v){return s+v.count;},0);
+  var top = td.villages.slice().sort(function(a,b){return b.count-a.count;})[0];
+  document.getElementById('s-total').textContent = total.toLocaleString();
+  document.getElementById('s-villages').textContent = td.villages.length;
+  document.getElementById('s-top').textContent = top.name+' ('+top.count+')';
+  document.getElementById('hdr-sub').textContent = td.label+' Taluka · '+td.villages.length+' villages';
+
+  var mx = top.count;
+  td.villages.forEach(function(v){
+    v._max = mx;
+    var c=gc(v.count), r=8+Math.round((v.count/mx)*14), sz=r*2;
+    var icon=L.divIcon({className:'',
+      html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>26?10:8)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'55;cursor:pointer;">'+v.count+'</div>',
+      iconSize:[sz,sz],iconAnchor:[r,r]});
+    var m=L.marker([v.lat,v.lng],{icon:icon}).addTo(map);
+    m.on('click',function(){ openPanel(v); });
+    allMarkers.push({marker:m,village:v,visible:true});
+  });
+
+  map.setView(td.center, td.zoom);
+  updateNearestStat();
+  renderTable();
+}
+
+/* ═══════════════ PANEL ═══════════════ */
+function openPanel(v){
+  selVillage = v;
+  var c=gc(v.count);
+  document.getElementById('pv-name').textContent = v.name;
+  document.getElementById('pv-meta').textContent = 'Code: '+v.code+' · '+DATA[curTaluka].label+' Taluka, Surat';
+  document.getElementById('pv-count').textContent = v.count;
+  document.getElementById('pv-count').style.color = c;
+  var b=document.getElementById('pv-badge');
+  b.textContent=tier(v.count); b.style.background=c+'22'; b.style.color=c; b.style.borderColor=c+'55';
+  document.getElementById('pv-bar-fill').style.width=Math.round((v.count/v._max)*100)+'%';
+  document.getElementById('pv-bar-fill').style.background=c;
+  document.getElementById('pv-dist').textContent = userLat!==null
+    ? '📍 '+fmtD(haversine(userLat,userLng,v.lat,v.lng))+' from your location'
+    : '📍 Tap GPS button to see distance';
+  // PDF button
+  var pb=document.getElementById('btn-pdf-panel');
+  if(hasPDF(curTaluka,v.name)){
+    pb.textContent='⬇ Download PDF'; pb.className='btn btn-pdf';
+  } else {
+    pb.textContent='PDF not yet'; pb.className='btn btn-pdf unavail';
+  }
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){ document.getElementById('panel').classList.remove('open'); selVillage=null; }
+function navigateTo(){
+  if(!selVillage)return;
+  window.open('https://www.google.com/maps/dir/?api=1&destination='+selVillage.lat+','+selVillage.lng+'&travelmode=driving','_blank');
+}
+function downloadPDF(){
+  if(!selVillage||!hasPDF(curTaluka,selVillage.name))return;
+  window.open(pdfURL(curTaluka,selVillage.name),'_blank');
+}
+
+/* ═══════════════ MAP FILTERS ═══════════════ */
+function setFb(id){
+  ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(x){document.getElementById(x).classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+function filterMap(type){
+  curFilter=type;
+  setFb({all:'fb-all',high:'fb-high',medium:'fb-med',low:'fb-low'}[type]||'fb-all');
+  allMarkers.forEach(function(o){
+    var s=type==='all'
+      ||(type==='high'&&o.village.count>=150)
+      ||(type==='medium'&&o.village.count>=75&&o.village.count<150)
+      ||(type==='low'&&o.village.count<75);
+    s?(!map.hasLayer(o.marker)&&o.marker.addTo(map)):(map.hasLayer(o.marker)&&map.removeLayer(o.marker));
+    o.visible=s;
+  });
+}
+function sortByNearest(){
+  if(userLat===null){alert('Tap the GPS button first to get your location');return;}
+  setFb('fb-near');
+  // show all first
+  allMarkers.forEach(function(o){if(!map.hasLayer(o.marker))o.marker.addTo(map);});
+  var s=DATA[curTaluka].villages.slice().sort(function(a,b){
+    return haversine(userLat,userLng,a.lat,a.lng)-haversine(userLat,userLng,b.lat,b.lng);
+  });
+  map.setView([s[0].lat,s[0].lng],14);
+  openPanel(s[0]);
+}
+
+/* ═══════════════ GPS ═══════════════ */
+function setPill(state,txt){
+  var p=document.getElementById('gps-pill');
+  p.className=''; p.id='gps-pill';
+  if(state==='on') p.classList.add('on');
+  if(state==='err') p.classList.add('err');
+  p.textContent=txt;
+}
+function onPos(pos){
+  userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+  setPill('on','● GPS On');
+  if(gpsM){map.removeLayer(gpsM);map.removeLayer(gpsC);}
+  gpsC=L.circle([userLat,userLng],{radius:pos.coords.accuracy,color:'#1976d2',fillColor:'#1976d2',fillOpacity:0.1,weight:1}).addTo(map);
+  gpsM=L.marker([userLat,userLng],{
+    icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#1976d2;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(25,118,210,.9);"></div>',iconSize:[16,16],iconAnchor:[8,8]}),
+    zIndexOffset:1000
+  }).addTo(map);
+  updateNearestStat();
+  // refresh open panel distance
+  if(selVillage) openPanel(selVillage);
+}
+function onErr(e){
+  var msg=e.code===1?'Location blocked – allow in browser':'GPS error';
+  setPill('err','⚠ '+msg);
+}
+function requestGPS(){
+  if(!navigator.geolocation){alert('Geolocation not supported');return;}
+  setPill('','⟳ Locating...');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    onPos(pos);
+    map.setView([pos.coords.latitude,pos.coords.longitude],13);
+    if(!gpsWatching){
+      gpsWatching=true;
+      navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000});
+    }
+  },onErr,{enableHighAccuracy:true,timeout:20000});
+}
+function updateNearestStat(){
+  if(userLat===null)return;
+  var s=DATA[curTaluka].villages.slice().sort(function(a,b){
+    return haversine(userLat,userLng,a.lat,a.lng)-haversine(userLat,userLng,b.lat,b.lng);
+  });
+  document.getElementById('s-near').textContent=s[0].name+' ('+haversine(userLat,userLng,s[0].lat,s[0].lng).toFixed(1)+'km)';
+}
+
+/* ═══════════════ TABS ═══════════════ */
+function switchTab(t){
+  document.getElementById('tab-map').classList.toggle('active',t==='map');
+  document.getElementById('tab-tbl').classList.toggle('active',t==='table');
+  document.getElementById('map-view').style.display   = t==='map'?'flex':'none';
+  document.getElementById('table-view').style.display = t==='table'?'flex':'none';
+  if(t==='map') map.invalidateSize();
+  if(t==='table') renderTable();
+}
+
+/* ═══════════════ TABLE ═══════════════ */
+function setSort(s){
+  if(s==='dist'&&userLat===null){alert('Tap GPS button first');return;}
+  tblSort=s;
+  ['ts-count','ts-name','ts-dist'].forEach(function(x){document.getElementById(x).classList.remove('active');});
+  document.getElementById('ts-'+s).classList.add('active');
+  renderTable();
+}
+function renderTable(){
+  var q=(document.getElementById('tbl-search').value||'').toLowerCase().trim();
+  var td=DATA[curTaluka];
+  var rows=td.villages.filter(function(v){return !q||v.name.toLowerCase().indexOf(q)>=0;});
+  if(tblSort==='count') rows.sort(function(a,b){return b.count-a.count;});
+  else if(tblSort==='name') rows.sort(function(a,b){return a.name.localeCompare(b.name);});
+  else if(tblSort==='dist'&&userLat!==null) rows.sort(function(a,b){return haversine(userLat,userLng,a.lat,a.lng)-haversine(userLat,userLng,b.lat,b.lng);});
+  var mx=td.villages.reduce(function(m,v){return Math.max(m,v.count);},1);
+  var html='';
+  rows.forEach(function(v,i){
+    var c=gc(v.count);
+    var dStr=userLat!==null?fmtD(haversine(userLat,userLng,v.lat,v.lng)):'—';
+    var bw=Math.round((v.count/mx)*100);
+    var pdf=hasPDF(curTaluka,v.name);
+    html+='<div class="tr" onclick="onRowTap(\''+v.name+'\')">'
+      +'<span class="tr-rank">'+(i+1)+'</span>'
+      +'<span class="tr-dot" style="background:'+c+'"></span>'
+      +'<div class="tr-body">'
+        +'<div class="tr-name">'+v.name+'</div>'
+        +'<div class="tr-sub">'+v.code+'</div>'
+        +'<div class="tr-bbar"><div class="tr-bfill" style="width:'+bw+'%;background:'+c+'"></div></div>'
+      +'</div>'
+      +'<div class="tr-right"><div class="tr-count" style="color:'+c+'">'+v.count+'</div><div class="tr-dist">'+dStr+'</div></div>'
+      +'<div class="tr-actions">'
+        +'<button class="tr-go" onclick="event.stopPropagation();goNav('+v.lat+','+v.lng+')">Go</button>'
+        +(pdf
+          ?'<button class="tr-pdf" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.name)+'\',\'_blank\')">PDF</button>'
+          :'<button class="tr-pdf na" disabled>PDF</button>')
+      +'</div>'
+    +'</div>';
+  });
+  if(!html) html='<p style="text-align:center;color:#1a3050;padding:30px 0;font-size:13px;">No villages found</p>';
+  document.getElementById('tbl-wrap').innerHTML=html;
+}
+function onRowTap(name){
+  var v=DATA[curTaluka].villages.find(function(x){return x.name===name;});
+  if(!v)return;
+  switchTab('map');
+  v._max=DATA[curTaluka].villages.reduce(function(m,x){return Math.max(m,x.count);},1);
+  map.setView([v.lat,v.lng],14);
+  openPanel(v);
+}
+function goNav(lat,lng){
+  window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank');
+}
+
+/* ═══════════════ INIT ═══════════════ */
+map.on('click',closePanel);
+loadTaluka();
+</script>
+</body>
+</html>
