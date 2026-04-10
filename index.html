@@ -3,126 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SVAMITVA – Surat District</title>
+<title>SVAMITVA – South Gujarat</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-#header{background:#06101a;padding:9px 14px 7px;border-bottom:1px solid #1a2d40;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
-#header h1{font-size:13px;font-weight:700;color:#e2f0ff;white-space:nowrap}
-#header p{font-size:10px;color:#4a7090;margin-top:1px}
-#gps-pill{font-size:11px;padding:5px 11px;border-radius:20px;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;flex-shrink:0;white-space:nowrap}
+/* Header */
+#hdr{background:#06101a;padding:8px 14px 6px;border-bottom:1px solid #1a2d40;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#hdr h1{font-size:13px;font-weight:700;color:#e2f0ff;white-space:nowrap}
+#hdr p{font-size:10px;color:#4a7090;margin-top:1px}
+#gps-pill{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;flex-shrink:0;white-space:nowrap}
 #gps-pill.on{background:#0d2a1a;border-color:#2e7d52;color:#4caf50}
 #gps-pill.err{background:#2a0d0d;border-color:#7d2e2e;color:#ef5350}
-#taluka-bar{display:flex;gap:6px;padding:7px 14px;background:#06101a;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-#taluka-bar::-webkit-scrollbar{display:none}
-.tk-btn{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.tk-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
-#statsbar{display:flex;gap:6px;padding:5px 14px;background:#08131e;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-#statsbar::-webkit-scrollbar{display:none}
-.stat{background:#112030;border-radius:7px;padding:4px 9px;white-space:nowrap;flex-shrink:0;font-size:10px;color:#4a7090}
-.stat strong{display:block;font-size:14px;font-weight:700;color:#e2f0ff;line-height:1.2}
+/* District bar */
+#dist-bar{display:flex;gap:6px;padding:6px 14px;background:#040c14;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none;align-items:center}
+#dist-bar::-webkit-scrollbar{display:none}
+.dist-label{font-size:10px;color:#3a5570;flex-shrink:0;margin-right:2px}
+.dk{padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #1a2d40;background:#112030;color:#8aafc8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.dk.active{background:#0d2a1a;border-color:#2e7d52;color:#4caf50}
+#hdfc-toggle{margin-left:auto;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1e3a5a;background:#0d1e30;color:#64b5f6;cursor:pointer;white-space:nowrap;flex-shrink:0}
+#hdfc-toggle.on{background:#1a2a3a;border-color:#1976d2;color:#90caf9}
+/* Taluka bar */
+#tk-bar{display:flex;gap:6px;padding:6px 14px;background:#06101a;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#tk-bar::-webkit-scrollbar{display:none}
+.tk{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.tk.active{background:#1565c0;border-color:#1976d2;color:#fff}
+/* Stats */
+#sbar{display:flex;gap:6px;padding:5px 14px;background:#08131e;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#sbar::-webkit-scrollbar{display:none}
+.st{background:#112030;border-radius:7px;padding:4px 9px;white-space:nowrap;flex-shrink:0;font-size:10px;color:#4a7090}
+.st strong{display:block;font-size:13px;font-weight:700;color:#e2f0ff;line-height:1.2}
+/* Tabs */
 #tabbar{display:flex;background:#06101a;border-bottom:1px solid #1a2d40;flex-shrink:0}
 .tab{flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:#4a7090;cursor:pointer;border-bottom:2px solid transparent}
 .tab.active{color:#64b5f6;border-bottom-color:#1976d2}
-#filterbar{display:flex;gap:6px;padding:6px 14px;background:#0a1520;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-#filterbar::-webkit-scrollbar{display:none}
-.f-btn{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.f-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
+/* Filter */
+#fbar{display:flex;gap:6px;padding:6px 14px;background:#0a1520;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#fbar::-webkit-scrollbar{display:none}
+.fb{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.fb.active{background:#1565c0;border-color:#1976d2;color:#fff}
+/* Map */
 #map-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #map{flex:1;z-index:1}
-#legend{position:absolute;bottom:86px;right:10px;background:rgba(6,16,26,.93);border:1px solid #1a2d40;border-radius:10px;padding:7px 10px;z-index:999;font-size:10px;color:#6b9ab8}
+#legend{position:absolute;bottom:82px;right:10px;background:rgba(6,16,26,.93);border:1px solid #1a2d40;border-radius:10px;padding:7px 10px;z-index:999;font-size:10px;color:#6b9ab8}
 #legend div{display:flex;align-items:center;gap:5px;margin-bottom:3px}
 #legend div:last-child{margin-bottom:0}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-#gpsBtn{position:absolute;bottom:22px;right:10px;background:#1565c0;border:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(21,101,192,.5);cursor:pointer;z-index:999;color:#fff;font-size:19px}
+#gpsBtn{position:absolute;bottom:20px;right:10px;background:#1565c0;border:none;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:999;color:#fff;font-size:18px}
 #gpsBtn:active{transform:scale(.92)}
-#panel{position:absolute;bottom:-380px;left:0;right:0;background:#06101a;border-top:1px solid #1a2d40;border-radius:18px 18px 0 0;padding:14px;z-index:1000;transition:bottom .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.7)}
+/* Panel */
+#panel{position:absolute;bottom:-360px;left:0;right:0;background:#06101a;border-top:1px solid #1a2d40;border-radius:18px 18px 0 0;padding:14px;z-index:1000;transition:bottom .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.7)}
 #panel.open{bottom:0}
 #ph{width:34px;height:4px;background:#1a2d40;border-radius:2px;margin:0 auto 12px}
-#pv-name{font-size:16px;font-weight:700;color:#e2f0ff}
-#pv-meta{font-size:10px;color:#4a7090;margin-top:2px;margin-bottom:10px}
-#pv-cards{background:#112030;border-radius:10px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-#pv-cards .lbl{font-size:10px;color:#4a7090}
-#pv-cards .val{font-size:28px;font-weight:800}
-#pv-dist{font-size:11px;color:#6b9ab8;margin-bottom:7px}
-#pv-bar{height:5px;background:#112030;border-radius:3px;margin-bottom:12px;overflow:hidden}
-#pv-bar-fill{height:100%;border-radius:3px;transition:width .4s}
-.btn-row{display:flex;gap:7px}
-.btn{flex:1;padding:11px 6px;border:none;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer}
-.btn-nav{background:#1565c0;color:#fff}
-.btn-view{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50}
+#pv-nm{font-size:16px;font-weight:700;color:#e2f0ff}
+#pv-mt{font-size:10px;color:#4a7090;margin-top:2px;margin-bottom:10px}
+#pv-cd{background:#112030;border-radius:10px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+#pv-cd .lb{font-size:10px;color:#4a7090}
+#pv-cd .vl{font-size:28px;font-weight:800}
+#pv-ds{font-size:11px;color:#6b9ab8;margin-bottom:7px}
+#pv-br{height:5px;background:#112030;border-radius:3px;margin-bottom:12px;overflow:hidden}
+#pv-bf{height:100%;border-radius:3px;transition:width .4s}
+.br{display:flex;gap:6px}
+.btn{flex:1;padding:10px 5px;border:none;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer}
+.btn-nv{background:#1565c0;color:#fff}
+.btn-vw{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50}
 .btn-dl{background:#1a2a3a;border:1px solid #1976d2;color:#64b5f6}
 .btn-na{background:#141e28;border:1px solid #1a2d40;color:#2a4a6a;cursor:default}
-.btn-close{background:#112030;color:#6b9ab8;flex:0 0 42px;padding:11px 0}
-#table-view{flex:1;display:none;flex-direction:column;overflow:hidden}
-#tbl-search{margin:9px 14px 6px;padding:8px 12px;border-radius:10px;border:1px solid #1a2d40;background:#112030;color:#e2f0ff;font-size:13px;width:calc(100% - 28px);outline:none}
-#tbl-search::placeholder{color:#2a4a6a}
-#tbl-sort-row{display:flex;gap:6px;padding:0 14px 7px;overflow-x:auto;scrollbar-width:none}
-#tbl-sort-row::-webkit-scrollbar{display:none}
-.ts{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-cl{background:#112030;color:#6b9ab8;flex:0 0 40px;padding:10px 0}
+/* Table */
+#tbl-view{flex:1;display:none;flex-direction:column;overflow:hidden}
+#tbl-s{margin:8px 14px 5px;padding:8px 12px;border-radius:10px;border:1px solid #1a2d40;background:#112030;color:#e2f0ff;font-size:13px;width:calc(100% - 28px);outline:none}
+#tbl-s::placeholder{color:#2a4a6a}
+#tsort{display:flex;gap:6px;padding:0 14px 7px;overflow-x:auto;scrollbar-width:none}
+#tsort::-webkit-scrollbar{display:none}
+.ts{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .ts.active{background:#1565c0;border-color:#1976d2;color:#fff}
-#tbl-wrap{flex:1;overflow-y:auto;padding:0 14px 20px;-webkit-overflow-scrolling:touch}
+#tw{flex:1;overflow-y:auto;padding:0 14px 20px;-webkit-overflow-scrolling:touch}
 .tr{display:flex;align-items:center;gap:8px;padding:9px 11px;background:#112030;border-radius:10px;margin-bottom:6px;cursor:pointer}
 .tr:active{background:#1a3050}
-.tr-rank{font-size:10px;color:#2a4a6a;width:18px;text-align:center;flex-shrink:0}
-.tr-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.tr-body{flex:1;min-width:0}
-.tr-name{font-size:12px;font-weight:600;color:#e2f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tr-sub{font-size:10px;color:#2a4a6a;margin-top:1px}
-.tr-bb{height:3px;background:#0a1520;border-radius:2px;margin-top:4px;overflow:hidden;max-width:100px}
-.tr-bf{height:100%;border-radius:2px}
-.tr-right{text-align:right;flex-shrink:0}
-.tr-count{font-size:15px;font-weight:800}
-.tr-dist{font-size:10px;color:#4a7090;margin-top:1px}
-.tr-acts{display:flex;gap:4px;flex-shrink:0}
-.tr-go{background:#1565c044;border:1px solid #1976d2;color:#64b5f6;border-radius:7px;padding:5px 7px;font-size:10px;font-weight:600;cursor:pointer}
-.tr-view{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50;border-radius:7px;padding:5px 7px;font-size:10px;font-weight:600;cursor:pointer}
-.tr-dl{background:#1a2a3a;border:1px solid #1976d2;color:#64b5f6;border-radius:7px;padding:5px 7px;font-size:10px;font-weight:600;cursor:pointer}
-.tr-na{background:#141e28;border:1px solid #1a2030;color:#2a3a4a;border-radius:7px;padding:5px 7px;font-size:10px;cursor:default}
+.trk{font-size:10px;color:#2a4a6a;width:18px;text-align:center;flex-shrink:0}
+.trd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.trb{flex:1;min-width:0}
+.trn{font-size:12px;font-weight:600;color:#e2f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trs{font-size:10px;color:#2a4a6a;margin-top:1px}
+.trbb{height:3px;background:#0a1520;border-radius:2px;margin-top:4px;overflow:hidden;max-width:100px}
+.trbf{height:100%;border-radius:2px}
+.trr{text-align:right;flex-shrink:0}
+.trc{font-size:15px;font-weight:800}
+.trdst{font-size:10px;color:#4a7090;margin-top:1px}
+.tra{display:flex;gap:4px;flex-shrink:0}
+.tgo{background:#1565c044;border:1px solid #1976d2;color:#64b5f6;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:600;cursor:pointer}
+.tvw{background:#1a3a1a;border:1px solid #2e7d52;color:#4caf50;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:600;cursor:pointer}
+.tdl{background:#1a2a3a;border:1px solid #1976d2;color:#64b5f6;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:600;cursor:pointer}
+.tna{background:#141e28;border:1px solid #1a2030;color:#2a3a4a;border-radius:7px;padding:4px 7px;font-size:10px;cursor:default}
+/* Leaflet */
 .leaflet-popup-content-wrapper{background:#06101a!important;border:1px solid #1a2d40!important;border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,.6)!important;color:#e2f0ff!important;padding:0!important}
 .leaflet-popup-content{margin:0!important}
 .leaflet-popup-tip{background:#06101a!important}
 .leaflet-popup-close-button{color:#4a7090!important;top:6px!important;right:8px!important}
 .leaflet-control-zoom{border:1px solid #1a2d40!important;border-radius:8px!important;overflow:hidden}
 .leaflet-control-zoom a{background:#112030!important;color:#6b9ab8!important;border-bottom:1px solid #1a2d40!important}
-.leaflet-control-attribution{background:rgba(6,16,26,.5)!important;color:#162030!important;font-size:8px!important}
+.leaflet-control-attribution{background:rgba(6,16,26,.4)!important;color:#0e1e2e!important;font-size:8px!important}
 </style>
 </head>
 <body>
-<div id="header">
-  <div><h1>&#128205; SVAMITVA — Surat District</h1><p id="hdr-sub">Select a taluka</p></div>
-  <div id="gps-pill" onclick="requestGPS()">&#9711; Get Location</div>
+<div id="hdr">
+  <div><h1>&#128205; SVAMITVA – South Gujarat</h1><p id="hdr-sub">Select district &amp; taluka</p></div>
+  <div id="gps-pill" onclick="reqGPS()">&#9711; Location</div>
 </div>
-<div id="taluka-bar">
-  <button class="tk-btn active" onclick="setTaluka('bardoli',this)">Bardoli</button>
-  <button class="tk-btn" onclick="setTaluka('chorasi',this)">Chorasi</button>
-  <button class="tk-btn" onclick="setTaluka('kamrej',this)">Kamrej</button>
-  <button class="tk-btn" onclick="setTaluka('mahuva',this)">Mahuva</button>
-  <button class="tk-btn" onclick="setTaluka('mandvi',this)">Mandvi</button>
-  <button class="tk-btn" onclick="setTaluka('mangrol',this)">Mangrol</button>
-  <button class="tk-btn" onclick="setTaluka('olpad',this)">Olpad</button>
-  <button class="tk-btn" onclick="setTaluka('palsana',this)">Palsana</button>
-  <button class="tk-btn" onclick="setTaluka('umarpada',this)">Umarpada</button>
+<!-- District bar -->
+<div id="dist-bar">
+  <span class="dist-label">District:</span>
+  <button class="dk active" onclick="setDist('surat',this)">Surat</button>
+  <button class="dk" onclick="setDist('navsari',this)">Navsari</button>
+  <button class="dk" onclick="setDist('valsad',this)">Valsad</button>
+  <button id="hdfc-toggle" onclick="toggleHDFC()">&#127974; HDFC OFF</button>
 </div>
-<div id="statsbar">
-  <div class="stat"><strong id="s-total">—</strong>Cards</div>
-  <div class="stat"><strong id="s-villages">—</strong>Villages</div>
-  <div class="stat"><strong id="s-top">—</strong>Top Village</div>
-  <div class="stat" id="s-near-wrap"><strong id="s-near">—</strong>Nearest</div>
+<!-- Taluka bar -->
+<div id="tk-bar"></div>
+<!-- Stats -->
+<div id="sbar">
+  <div class="st"><strong id="s-tot">—</strong>Cards</div>
+  <div class="st"><strong id="s-vil">—</strong>Villages</div>
+  <div class="st"><strong id="s-top">—</strong>Top Village</div>
+  <div class="st" id="s-nr-w"><strong id="s-nr">—</strong>Nearest</div>
 </div>
+<!-- Tabs -->
 <div id="tabbar">
   <div class="tab active" id="tab-map" onclick="switchTab('map')">&#128506; Map</div>
   <div class="tab" id="tab-tbl" onclick="switchTab('table')">&#9776; Table</div>
 </div>
+<!-- MAP VIEW -->
 <div id="map-view">
-  <div id="filterbar">
-    <button class="f-btn active" id="fb-all" onclick="filterMap('all')">All</button>
-    <button class="f-btn" id="fb-high" onclick="filterMap('high')">High 150+</button>
-    <button class="f-btn" id="fb-med" onclick="filterMap('medium')">Mid 75-149</button>
-    <button class="f-btn" id="fb-low" onclick="filterMap('low')">Low &lt;75</button>
-    <button class="f-btn" id="fb-near" onclick="sortByNearest()">Nearest &#8595;</button>
+  <div id="fbar">
+    <button class="fb active" id="fb-all" onclick="fMap('all')">All</button>
+    <button class="fb" id="fb-hi" onclick="fMap('high')">150+</button>
+    <button class="fb" id="fb-md" onclick="fMap('mid')">75-149</button>
+    <button class="fb" id="fb-lo" onclick="fMap('low')">&lt;75</button>
+    <button class="fb" id="fb-nr" onclick="nearSort()">Nearest &#8595;</button>
   </div>
   <div id="map"></div>
   <div id="legend">
@@ -130,456 +149,240 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
     <div><span class="dot" style="background:#ff9800"></span>100-199</div>
     <div><span class="dot" style="background:#4caf50"></span>50-99</div>
     <div><span class="dot" style="background:#78909c"></span>&lt;50</div>
+    <div><span class="dot" style="background:#1976d2"></span>HDFC</div>
   </div>
-  <button id="gpsBtn" onclick="requestGPS()">&#9711;</button>
+  <button id="gpsBtn" onclick="reqGPS()">&#9711;</button>
 </div>
-<div id="table-view">
-  <input id="tbl-search" type="text" placeholder="Search village..." oninput="renderTable()">
-  <div id="tbl-sort-row">
-    <button class="ts active" id="ts-count" onclick="setSort('count')">Most Cards &#8595;</button>
-    <button class="ts" id="ts-name" onclick="setSort('name')">A - Z</button>
-    <button class="ts" id="ts-dist" onclick="setSort('dist')">Nearest</button>
+<!-- TABLE VIEW -->
+<div id="tbl-view">
+  <input id="tbl-s" type="text" placeholder="Search village..." oninput="renderTbl()">
+  <div id="tsort">
+    <button class="ts active" id="ts-c" onclick="setSort('count')">Most Cards &#8595;</button>
+    <button class="ts" id="ts-n" onclick="setSort('name')">A - Z</button>
+    <button class="ts" id="ts-d" onclick="setSort('dist')">Nearest</button>
   </div>
-  <div id="tbl-wrap"></div>
+  <div id="tw"></div>
 </div>
+<!-- Bottom panel -->
 <div id="panel">
   <div id="ph"></div>
-  <div id="pv-name">—</div>
-  <div id="pv-meta">—</div>
-  <div id="pv-cards">
-    <div><div class="lbl">Property Cards Issued</div><div class="val" id="pv-count">0</div></div>
-    <div id="pv-badge" style="font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;border:1px solid transparent"></div>
+  <div id="pv-nm">—</div>
+  <div id="pv-mt">—</div>
+  <div id="pv-cd">
+    <div><div class="lb">Property Cards Issued</div><div class="vl" id="pv-ct">0</div></div>
+    <div id="pv-bg" style="font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;border:1px solid transparent"></div>
   </div>
-  <div id="pv-dist">&#128205; Tap GPS button to see distance</div>
-  <div id="pv-bar"><div id="pv-bar-fill"></div></div>
-  <div class="btn-row">
-    <button class="btn btn-nav" onclick="navigateTo()">&#128506; Navigate</button>
-    <button class="btn btn-view" id="btn-view-panel" onclick="viewPDF()">&#128065; View PDF</button>
-    <button class="btn btn-dl"   id="btn-dl-panel"   onclick="dlPDF()">&#8659; Download</button>
-    <button class="btn btn-close" onclick="closePanel()">&#10005;</button>
+  <div id="pv-ds">&#128205; Tap GPS to see distance</div>
+  <div id="pv-br"><div id="pv-bf"></div></div>
+  <div class="br">
+    <button class="btn btn-nv" onclick="navTo()">&#128506; Navigate</button>
+    <button class="btn btn-vw" id="b-vw" onclick="vwPDF()">&#128065; View PDF</button>
+    <button class="btn btn-dl" id="b-dl" onclick="dlPDF()">&#8659; Download</button>
+    <button class="btn btn-cl" onclick="closeP()">&#10005;</button>
   </div>
 </div>
+
 <script>
-var GITHUB='https://helin-bi.github.io/svamitva/pdfs/';
-var DATA={
-  bardoli:{label:'Bardoli',center:[21.12,73.15],zoom:11,pdfs:['Akoti','Allu','Astan','Bamni','Bamroli','Bhamaiya','Bharampor','Bhuvasan'],
-    villages:[
-      {n:'Varad',c:'524283',lat:21.1704,lng:73.1320,cnt:305},
-      {n:'Samthan',c:'524279',lat:21.1908,lng:73.1943,cnt:209},
-      {n:'Uva',c:'524314',lat:21.1255,lng:73.1122,cnt:206},
-      {n:'Kantali',c:'524280',lat:21.1925,lng:73.1792,cnt:203},
-      {n:'Nizar',c:'524332',lat:21.0582,lng:73.1217,cnt:188},
-      {n:'Singod',c:'524277',lat:21.1972,lng:73.2223,cnt:180},
-      {n:'Umrakh',c:'524286',lat:21.1439,lng:73.0815,cnt:161},
-      {n:'Vadoli',c:'524339',lat:21.0280,lng:73.0804,cnt:154},
-      {n:'Uchharel',c:'524269',lat:21.2110,lng:73.1910,cnt:135},
-      {n:'Sejvad',c:'524326',lat:21.0935,lng:73.1999,cnt:134},
-      {n:'Bhuvasan',c:'524336',lat:21.0449,lng:73.0693,cnt:131},
-      {n:'Goji',c:'524321',lat:21.0698,lng:73.1084,cnt:127},
-      {n:'Karachaka',c:'524315',lat:21.1383,lng:73.1932,cnt:119},
-      {n:'Ninat',c:'524330',lat:21.0614,lng:73.0652,cnt:119},
-      {n:'Kharvasa',c:'524285',lat:21.1586,lng:73.1158,cnt:116},
-      {n:'Palsod',c:'524292',lat:21.1650,lng:73.1600,cnt:108},
-      {n:'Bharampor',c:'524266',lat:21.1941,lng:73.1378,cnt:106},
-      {n:'Astan',c:'524287',lat:21.1442,lng:73.1158,cnt:109},
-      {n:'Dhamdod Lumbha',c:'524302',lat:21.1395,lng:73.1368,cnt:103},
-      {n:'Tarbhon',c:'524343',lat:21.0201,lng:73.0597,cnt:103},
-      {n:'Bhamaiya',c:'524268',lat:21.2098,lng:73.1792,cnt:100},
-      {n:'Movachhi',c:'524264',lat:21.1795,lng:73.1084,cnt:80},
-      {n:'Nasura',c:'524275',lat:21.2073,lng:73.2504,cnt:82},
-      {n:'Nadida',c:'524304',lat:21.1084,lng:73.0874,cnt:84},
-      {n:'Sankri',c:'524301',lat:21.1566,lng:73.1674,cnt:80},
-      {n:'Movachhi',c:'524264',lat:21.1795,lng:73.1084,cnt:80},
-      {n:'Haripura',c:'524270',lat:21.2104,lng:73.2065,cnt:79},
-      {n:'Isanpor',c:'524284',lat:21.1600,lng:73.1200,cnt:77},
-      {n:'Isroli',c:'524319',lat:21.0996,lng:73.1275,cnt:79},
-      {n:'Masad',c:'524272',lat:21.2142,lng:73.2434,cnt:79},
-      {n:'Bamni',c:'524278',lat:21.1897,lng:73.2087,cnt:90},
-      {n:'Vadhvaniya',c:'524276',lat:21.2029,lng:73.2463,cnt:69},
-      {n:'Vadhava',c:'524308',lat:21.1284,lng:73.1733,cnt:53},
-      {n:'Rajpura Lumbha',c:'524289',lat:21.1504,lng:73.1482,cnt:44},
-      {n:'Bamroli',c:'524322',lat:21.0895,lng:73.1320,cnt:39},
-      {n:'Junvani',c:'524295',lat:21.1806,lng:73.2323,cnt:36},
-      {n:'Ruwa',c:'524282',lat:21.1750,lng:73.1350,cnt:33},
-      {n:'Vaghech Sarbhon',c:'524341',lat:21.0200,lng:73.0420,cnt:33},
-      {n:'Pardi Kadod',c:'524281',lat:21.1913,lng:73.1674,cnt:26},
-      {n:'Manekpor',c:'524313',lat:21.0971,lng:73.2353,cnt:12},
-      {n:'Gotasa',c:'524323',lat:21.0894,lng:73.1453,cnt:13},
-      {n:'Allu',c:'524327',lat:21.0667,lng:73.1910,cnt:10},
-      {n:'Kuvadiya',c:'524344',lat:21.0003,lng:73.0494,cnt:9},
-      {n:'Vankaner',c:'524328',lat:21.0764,lng:73.1733,cnt:3},
-      {n:'Pardi Valod',c:'524333',lat:21.0533,lng:73.1733,cnt:3},
-      {n:'Mangrolia',c:'524300',lat:21.1571,lng:73.1932,cnt:4},
-      {n:'Pardi Vagha',c:'524342',lat:21.0195,lng:73.0538,cnt:1},
-      {n:'Moti Falod',c:'524265',lat:21.2076,lng:73.1398,cnt:1},
-      {n:'Akoti',c:'524293',lat:21.1708,lng:73.1858,cnt:1}
-    ]},
-  chorasi:{label:'Chorasi',center:[21.10,72.93],zoom:11,pdfs:[],
-    villages:[
-      {n:'Bonand',c:'524193',lat:21.1120,lng:72.9151,cnt:203},
-      {n:'Kharvasa',c:'524192',lat:21.1214,lng:72.9010,cnt:178},
-      {n:'Ravla Alias Vaktana',c:'524194',lat:21.1002,lng:72.9248,cnt:161},
-      {n:'Bhatia',c:'524195',lat:21.0834,lng:72.9379,cnt:77},
-      {n:'Khambhasla',c:'524188',lat:21.1287,lng:72.9123,cnt:53},
-      {n:'Samrod',c:'524202',lat:21.0684,lng:72.9427,cnt:46},
-      {n:'Mohni',c:'524185',lat:21.1385,lng:72.9289,cnt:36},
-      {n:'Kachholi',c:'524201',lat:21.0633,lng:72.9354,cnt:4},
-      {n:'Timbarva',c:'524186',lat:21.0850,lng:72.9300,cnt:3},
-      {n:'Goja',c:'524187',lat:21.1263,lng:72.9176,cnt:1}
-    ]},
-  kamrej:{label:'Kamrej',center:[21.26,73.01],zoom:11,pdfs:[],
-    villages:[
-      {n:'Ghala',c:'524100',lat:21.2976,lng:73.0361,cnt:540},
-      {n:'Jokha',c:'524134',lat:21.2391,lng:73.0140,cnt:395},
-      {n:'Sevni',c:'524136',lat:21.2233,lng:73.0715,cnt:348},
-      {n:'Umbhel',c:'524159',lat:21.1896,lng:72.9682,cnt:388},
-      {n:'Antroli',c:'524096',lat:21.3324,lng:72.9402,cnt:258},
-      {n:'Dhoran Paradi',c:'524102',lat:21.3134,lng:72.9645,cnt:297},
-      {n:'Digas',c:'524123',lat:21.2653,lng:73.0516,cnt:300},
-      {n:'Orna',c:'524126',lat:21.2503,lng:73.0605,cnt:225},
-      {n:'Ladvi',c:'524146',lat:21.1948,lng:72.9557,cnt:228},
-      {n:'Karjan',c:'524101',lat:21.3071,lng:73.0088,cnt:214},
-      {n:'Mankna',c:'524148',lat:21.2091,lng:72.9833,cnt:194},
-      {n:'Kosamadi',c:'524142',lat:21.2650,lng:73.0000,cnt:187},
-      {n:'Morthana',c:'524141',lat:21.2200,lng:73.0177,cnt:168},
-      {n:'Koli Bharthana',c:'524121',lat:21.2641,lng:73.0117,cnt:167},
-      {n:'Kosmada',c:'524143',lat:21.2074,lng:72.9313,cnt:151},
-      {n:'Valan',c:'524149',lat:21.2035,lng:73.0151,cnt:154},
-      {n:'Parab',c:'524158',lat:21.1948,lng:73.0117,cnt:150},
-      {n:'Machhi',c:'524108',lat:21.2825,lng:73.0608,cnt:143},
-      {n:'Timba',c:'524124',lat:21.2655,lng:73.0959,cnt:136},
-      {n:'Choryasi',c:'524105',lat:21.3082,lng:72.9551,cnt:129},
-      {n:'Khanpur',c:'524153',lat:21.2067,lng:73.0855,cnt:128},
-      {n:'Shekhpur',c:'524094',lat:21.3311,lng:72.9069,cnt:116},
-      {n:'Dungra',c:'524111',lat:21.2936,lng:73.0177,cnt:117},
-      {n:'Delad',c:'524112',lat:21.2502,lng:73.0870,cnt:56},
-      {n:'Delad',c:'524137',lat:21.2360,lng:73.1291,cnt:118},
-      {n:'Chikhli',c:'524161',lat:21.2070,lng:73.1125,cnt:102},
-      {n:'Netrang',c:'524122',lat:21.2665,lng:73.0354,cnt:98},
-      {n:'Segva',c:'524140',lat:21.2226,lng:73.0394,cnt:94},
-      {n:'Bhairav',c:'524106',lat:21.2912,lng:72.9741,cnt:86},
-      {n:'Navi Paradi',c:'524098',lat:21.3331,lng:72.9588,cnt:79},
-      {n:'Rundhvada',c:'524156',lat:21.2300,lng:73.0700,cnt:74},
-      {n:'Akhakhol',c:'524099',lat:21.3405,lng:72.9903,cnt:71},
-      {n:'Jior',c:'524110',lat:21.2912,lng:73.0302,cnt:36},
-      {n:'Mirapur',c:'524152',lat:21.2075,lng:73.0665,cnt:38},
-      {n:'Tharoli',c:'524097',lat:21.3407,lng:72.9505,cnt:43},
-      {n:'Pali',c:'524157',lat:21.1990,lng:73.0383,cnt:43},
-      {n:'Dharutha',c:'524128',lat:21.2437,lng:73.0383,cnt:50},
-      {n:'Nagod',c:'524155',lat:21.2219,lng:73.1243,cnt:100},
-      {n:'Simadi',c:'524133',lat:21.2235,lng:72.9955,cnt:33},
-      {n:'Dhatva',c:'524109',lat:21.2869,lng:73.0335,cnt:25},
-      {n:'Nansad',c:'524120',lat:21.2650,lng:72.9926,cnt:1},
-      {n:'Oviyan',c:'524145',lat:21.1905,lng:72.9383,cnt:1},
-      {n:'Kholeshwar',c:'524107',lat:21.2800,lng:73.0200,cnt:1},
-      {n:'Ghaludi',c:'524095',lat:21.3382,lng:72.9235,cnt:1},
-      {n:'Valthan',c:'524147',lat:21.2106,lng:72.9785,cnt:2},
-      {n:'Dethli',c:'524138',lat:21.2365,lng:73.1291,cnt:12},
-      {n:'Dungar',c:'524154',lat:21.2074,lng:73.1062,cnt:19},
-      {n:'Alura',c:'524150',lat:21.1987,lng:73.0320,cnt:20},
-      {n:'Vansdarundhi',c:'524151',lat:21.2054,lng:73.0537,cnt:14},
-      {n:'Chhedchha',c:'524144',lat:21.2100,lng:72.9700,cnt:11},
-      {n:'Umbhel',c:'524159',lat:21.1896,lng:72.9682,cnt:388}
-    ]},
-  mahuva:{label:'Mahuva',center:[20.97,73.16],zoom:11,pdfs:[],
-    villages:[
-      {n:'Karcheliya',c:'524381',lat:20.9703,lng:73.2087,cnt:378},
-      {n:'Ondach',c:'524360',lat:21.0155,lng:73.1276,cnt:283},
-      {n:'Jhervavra',c:'524390',lat:21.0100,lng:73.1500,cnt:206},
-      {n:'Gunasvel',c:'524397',lat:20.9290,lng:73.1837,cnt:195},
-      {n:'Kani',c:'524356',lat:21.0334,lng:73.1121,cnt:200},
-      {n:'Dholikui',c:'524377',lat:20.9775,lng:73.1084,cnt:177},
-      {n:'Vank',c:'524392',lat:20.9305,lng:73.2146,cnt:109},
-      {n:'Bartad',c:'524380',lat:20.9655,lng:73.1615,cnt:91},
-      {n:'Kadiya',c:'524370',lat:20.9990,lng:73.1497,cnt:81},
-      {n:'Nasura',c:'524275',lat:20.9800,lng:73.1700,cnt:82},
-      {n:'Puna',c:'524395',lat:20.9328,lng:73.2382,cnt:55},
-      {n:'Haladva',c:'524407',lat:20.9032,lng:73.2583,cnt:52},
-      {n:'Samba',c:'524401',lat:20.9068,lng:73.2087,cnt:45},
-      {n:'Lasanpor',c:'524411',lat:20.9200,lng:73.2500,cnt:41},
-      {n:'Kachhal',c:'524369',lat:21.0050,lng:73.1600,cnt:43},
-      {n:'Kavitha',c:'524374',lat:20.9500,lng:73.1800,cnt:30},
-      {n:'Dungari',c:'524367',lat:20.9908,lng:73.2117,cnt:66},
-      {n:'Mahuvariya',c:'524406',lat:20.9400,lng:73.2000,cnt:32},
-      {n:'Amchak',c:'524359',lat:21.0005,lng:73.1084,cnt:25},
-      {n:'Bamaniya',c:'524391',lat:20.9600,lng:73.1900,cnt:24},
-      {n:'Khandal',c:'524371',lat:20.9800,lng:73.1500,cnt:24},
-      {n:'Bhoriya',c:'524402',lat:20.9111,lng:73.2235,cnt:59},
-      {n:'Ghadoi',c:'524388',lat:20.9700,lng:73.1900,cnt:33},
-      {n:'Miyapur',c:'524362',lat:21.0100,lng:73.1300,cnt:16},
-      {n:'Kadhaiya',c:'524382',lat:20.9400,lng:73.1700,cnt:18},
-      {n:'Dhamkhadi',c:'524404',lat:20.9300,lng:73.2200,cnt:12},
-      {n:'Fulvadi',c:'524378',lat:20.9800,lng:73.1200,cnt:4},
-      {n:'Andhatri',c:'524365',lat:20.9900,lng:73.1900,cnt:1},
-      {n:'Dhundhesa',c:'524354',lat:21.0200,lng:73.1000,cnt:1},
-      {n:'Nihali',c:'524376',lat:20.9600,lng:73.1700,cnt:2},
-      {n:'Sevasan',c:'524375',lat:20.9700,lng:73.1500,cnt:1},
-      {n:'Vadiya',c:'524366',lat:20.9500,lng:73.2000,cnt:1},
-      {n:'Valvada',c:'524403',lat:20.9200,lng:73.2300,cnt:3}
-    ]},
-  mandvi:{label:'Mandvi',center:[21.30,73.22],zoom:11,pdfs:[],
-    villages:[
-      {n:'Godavadi',c:'524052',lat:21.2493,lng:73.2264,cnt:281},
-      {n:'Tarsadabar Gam',c:'524068',lat:21.2224,lng:73.3031,cnt:210},
-      {n:'Tuked',c:'523950',lat:21.3580,lng:73.1881,cnt:207},
-      {n:'Amba',c:'524011',lat:21.3019,lng:73.2323,cnt:198},
-      {n:'Devgiri',c:'523966',lat:21.4029,lng:73.3738,cnt:158},
-      {n:'Godsamba',c:'524042',lat:21.2742,lng:73.2441,cnt:158},
-      {n:'Gamtalav Bujrang',c:'524054',lat:21.2581,lng:73.2559,cnt:174},
-      {n:'Madharkui',c:'523976',lat:21.3433,lng:73.1851,cnt:148},
-      {n:'Vadod',c:'523984',lat:21.3077,lng:73.1202,cnt:147},
-      {n:'Choramba',c:'523955',lat:21.3836,lng:73.2972,cnt:146},
-      {n:'Munjlav',c:'523982',lat:21.3230,lng:73.0796,cnt:137},
-      {n:'Kharoli',c:'524049',lat:21.2540,lng:73.1881,cnt:123},
-      {n:'Dharampor',c:'523948',lat:21.3635,lng:73.1291,cnt:129},
-      {n:'Kamlapor',c:'524048',lat:21.2309,lng:73.1881,cnt:103},
-      {n:'Nandpor',c:'524044',lat:21.2590,lng:73.2087,cnt:93},
-      {n:'Togapur',c:'523947',lat:21.3495,lng:73.1055,cnt:84},
-      {n:'Varethi',c:'523945',lat:21.3999,lng:73.0346,cnt:74},
-      {n:'Valargadh',c:'524023',lat:21.2893,lng:73.2795,cnt:70},
-      {n:'Khanjroli',c:'524047',lat:21.2317,lng:73.1674,cnt:56},
-      {n:'Vareth',c:'524064',lat:21.2500,lng:73.2700,cnt:35},
-      {n:'Ushker Ramkund',c:'523979',lat:21.3500,lng:73.1500,cnt:33},
-      {n:'Rosvad',c:'523980',lat:21.3400,lng:73.1600,cnt:25},
-      {n:'Varjakhan',c:'524067',lat:21.2300,lng:73.3000,cnt:21},
-      {n:'Khod Amba',c:'523975',lat:21.3500,lng:73.2100,cnt:18},
-      {n:'Piparia',c:'524046',lat:21.2600,lng:73.2000,cnt:16},
-      {n:'Junvan',c:'523971',lat:21.3700,lng:73.3600,cnt:40},
-      {n:'Bori',c:'524043',lat:21.2800,lng:73.2300,cnt:8},
-      {n:'Patal',c:'523951',lat:21.3700,lng:73.0900,cnt:5},
-      {n:'Kevdi',c:'524029',lat:21.2900,lng:73.2200,cnt:4},
-      {n:'Gavachhi',c:'524045',lat:21.2700,lng:73.2100,cnt:2},
-      {n:'Jamankuva Bar',c:'524073',lat:21.2200,lng:73.3200,cnt:2},
-      {n:'Naren',c:'524019',lat:21.3000,lng:73.2500,cnt:4},
-      {n:'Fali',c:'523987',lat:21.3300,lng:73.1500,cnt:2},
-      {n:'Devgadh',c:'523970',lat:21.3800,lng:73.3500,cnt:1},
-      {n:'Jhab',c:'524012',lat:21.3100,lng:73.2400,cnt:1},
-      {n:'Patna',c:'524016',lat:21.3200,lng:73.2100,cnt:1},
-      {n:'Rupan',c:'524058',lat:21.2400,lng:73.2800,cnt:1}
-    ]},
-  mangrol:{label:'Mangrol',center:[21.43,73.10],zoom:11,pdfs:[],
-    villages:[
-      {n:'Velachha',c:'523830',lat:21.4311,lng:73.0154,cnt:509},
-      {n:'Ambavadi',c:'523849',lat:21.4346,lng:73.1962,cnt:236},
-      {n:'Dungri',c:'523869',lat:21.4023,lng:73.1276,cnt:235},
-      {n:'Siyalaj',c:'523826',lat:21.4204,lng:72.9468,cnt:222},
-      {n:'Kathvada',c:'523823',lat:21.4400,lng:73.1000,cnt:219},
-      {n:'Bhilvada',c:'523805',lat:21.4800,lng:73.0700,cnt:206},
-      {n:'Ratola',c:'523871',lat:21.3952,lng:73.1851,cnt:170},
-      {n:'Vadoli',c:'523834',lat:21.4200,lng:73.1300,cnt:163},
-      {n:'Dholikui',c:'523839',lat:21.4445,lng:73.2146,cnt:161},
-      {n:'Harsani',c:'523803',lat:21.4813,lng:73.1792,cnt:179},
-      {n:'Lindiad',c:'523863',lat:21.4100,lng:73.0500,cnt:193},
-      {n:'Nandav',c:'523793',lat:21.4796,lng:73.0095,cnt:186},
-      {n:'Nogama',c:'523854',lat:21.4202,lng:73.0800,cnt:147},
-      {n:'Gijram',c:'523800',lat:21.4861,lng:73.1143,cnt:132},
-      {n:'Asarma',c:'523820',lat:21.4476,lng:73.0627,cnt:133},
-      {n:'Borsad',c:'523870',lat:21.3932,lng:73.1417,cnt:122},
-      {n:'Lavet',c:'523811',lat:21.4796,lng:73.2470,cnt:113},
-      {n:'Pipodara',c:'523862',lat:21.3900,lng:73.1500,cnt:114},
-      {n:'Sava',c:'523822',lat:21.4500,lng:73.0700,cnt:106},
-      {n:'Vasravi',c:'523850',lat:21.4100,lng:73.1700,cnt:99},
-      {n:'Bhatkol',c:'523861',lat:21.3800,lng:73.1900,cnt:95},
-      {n:'Nandola',c:'523841',lat:21.4100,lng:73.1600,cnt:95},
-      {n:'Kevdi (Kund)',c:'523809',lat:21.4800,lng:73.1300,cnt:88},
-      {n:'Jhinora',c:'523838',lat:21.4300,lng:73.1400,cnt:92},
-      {n:'Kanvada',c:'523817',lat:21.4600,lng:73.1000,cnt:85},
-      {n:'Nana Borsara',c:'523791',lat:21.5000,lng:72.9800,cnt:84},
-      {n:'Khareda',c:'523813',lat:21.4600,lng:73.0900,cnt:83},
-      {n:'Pataldevi',c:'523842',lat:21.4200,lng:73.1800,cnt:66},
-      {n:'Vad',c:'523807',lat:21.4700,lng:73.0700,cnt:69},
-      {n:'Motifali',c:'523812',lat:21.4700,lng:73.0600,cnt:73},
-      {n:'Vastan',c:'523852',lat:21.4000,lng:73.1700,cnt:54},
-      {n:'Molvan',c:'523865',lat:21.3900,lng:73.2000,cnt:52},
-      {n:'Dinod',c:'523797',lat:21.4900,lng:73.0300,cnt:50},
-      {n:'Valesa',c:'523858',lat:21.3900,lng:73.2000,cnt:57},
-      {n:'Ansodala',c:'523855',lat:21.4200,lng:73.1800,cnt:44},
-      {n:'Surali',c:'523853',lat:21.4100,lng:73.1800,cnt:42},
-      {n:'Jhankharda',c:'523851',lat:21.4100,lng:73.1700,cnt:47},
-      {n:'Kargara',c:'523814',lat:21.4700,lng:73.0800,cnt:27},
-      {n:'Ghodbar',c:'523879',lat:21.3600,lng:73.2200,cnt:26},
-      {n:'Bhadkuva',c:'523806',lat:21.4700,lng:73.0800,cnt:56},
-      {n:'Kansali',c:'523873',lat:21.3900,lng:73.2000,cnt:21},
-      {n:'Limodara',c:'523866',lat:21.3800,lng:73.2100,cnt:19},
-      {n:'Ankdod',c:'523799',lat:21.4600,lng:73.0500,cnt:19},
-      {n:'Luvara',c:'523819',lat:21.4500,lng:73.0600,cnt:5},
-      {n:'Umelav',c:'523868',lat:21.3800,lng:73.2100,cnt:2},
-      {n:'Nani Fali',c:'523840',lat:21.4300,lng:73.1900,cnt:5},
-      {n:'Vansoli',c:'523795',lat:21.5000,lng:73.0100,cnt:2},
-      {n:'Gadkachh',c:'523837',lat:21.4400,lng:73.1300,cnt:3},
-      {n:'Charetha',c:'523835',lat:21.4300,lng:73.1200,cnt:2},
-      {n:'Chhamuchhal',c:'523864',lat:21.3800,lng:73.2000,cnt:5},
-      {n:'Ranakpor',c:'523832',lat:21.4600,lng:73.1200,cnt:1},
-      {n:'Shenthi',c:'523856',lat:21.4000,lng:73.1700,cnt:1},
-      {n:'Panetha',c:'523857',lat:21.4000,lng:73.1800,cnt:1}
-    ]},
-  olpad:{label:'Olpad',center:[21.38,72.79],zoom:11,pdfs:[],
-    villages:[
-      {n:'Karanj',c:'523686',lat:21.4155,lng:72.6809,cnt:259},
-      {n:'Kimamli',c:'523700',lat:21.4242,lng:72.9176,cnt:257},
-      {n:'Rajnagar',c:'934507',lat:21.3900,lng:72.7600,cnt:222},
-      {n:'Kadrama',c:'523694',lat:21.4063,lng:72.8058,cnt:186},
-      {n:'Sondlakhara',c:'523717',lat:21.3666,lng:72.7156,cnt:179},
-      {n:'Anita',c:'523698',lat:21.4228,lng:72.8696,cnt:173},
-      {n:'Sithan',c:'523734',lat:21.3534,lng:72.8408,cnt:170},
-      {n:'Morthan',c:'523724',lat:21.3587,lng:72.8124,cnt:162},
-      {n:'Atodra',c:'523736',lat:21.3383,lng:72.7962,cnt:153},
-      {n:'Achharan',c:'523735',lat:21.3459,lng:72.8097,cnt:152},
-      {n:'Kanthraj',c:'523733',lat:21.3649,lng:72.8408,cnt:146},
-      {n:'Bhadol',c:'523695',lat:21.4141,lng:72.8183,cnt:130},
-      {n:'Asnad',c:'523709',lat:21.3967,lng:72.7489,cnt:125},
-      {n:'Bolav',c:'523699',lat:21.4160,lng:72.8840,cnt:123},
-      {n:'Kamroli',c:'523688',lat:21.4050,lng:72.7112,cnt:117},
-      {n:'Delasa',c:'523715',lat:21.3580,lng:72.6757,cnt:111},
-      {n:'Bhatgam',c:'523720',lat:21.3738,lng:72.7437,cnt:108},
-      {n:'Mindhi',c:'523711',lat:21.3874,lng:72.7082,cnt:103},
-      {n:'Vadoli',c:'523696',lat:21.4309,lng:72.8405,cnt:100},
-      {n:'Sondamitha',c:'523708',lat:21.3830,lng:72.7696,cnt:100},
-      {n:'Karamla',c:'523746',lat:21.3144,lng:72.7968,cnt:95},
-      {n:'Koba',c:'523691',lat:21.4261,lng:72.7681,cnt:93},
-      {n:'Pardi Koba',c:'523692',lat:21.4228,lng:72.7670,cnt:84},
-      {n:'Gola',c:'523723',lat:21.3625,lng:72.7932,cnt:75},
-      {n:'Obhla',c:'523732',lat:21.3693,lng:72.8582,cnt:69},
-      {n:'Kunkni',c:'523781',lat:21.2467,lng:72.7341,cnt:68},
-      {n:'Asnabad',c:'523744',lat:21.3266,lng:72.7533,cnt:49},
-      {n:'Sarsana',c:'523707',lat:21.3954,lng:72.7769,cnt:49},
-      {n:'Kachhab',c:'523726',lat:21.3807,lng:72.8567,cnt:36},
-      {n:'Takarma',c:'523706',lat:21.3823,lng:72.7902,cnt:33},
-      {n:'Balkas',c:'523763',lat:21.2795,lng:72.7577,cnt:27},
-      {n:'Thothab',c:'523690',lat:21.4242,lng:72.7637,cnt:18},
-      {n:'Dihen',c:'523782',lat:21.2571,lng:72.6890,cnt:4},
-      {n:'Naghoi',c:'523710',lat:21.3822,lng:72.7208,cnt:2}
-    ]},
-  palsana:{label:'Palsana',center:[21.11,73.00],zoom:11,pdfs:[],
-    villages:[
-      {n:'Tundi',c:'524232',lat:21.1222,lng:73.0301,cnt:232},
-      {n:'Antroli',c:'524216',lat:21.0900,lng:72.9800,cnt:136},
-      {n:'Dhamdod',c:'524240',lat:21.1042,lng:73.0494,cnt:149},
-      {n:'Erthan',c:'524235',lat:21.1189,lng:72.9488,cnt:97},
-      {n:'Gangpor',c:'524230',lat:21.0900,lng:72.9900,cnt:103},
-      {n:'Vadadala',c:'524236',lat:21.1140,lng:72.9623,cnt:72},
-      {n:'Ghaluda',c:'524239',lat:21.0965,lng:73.0236,cnt:51},
-      {n:'Jetpor',c:'524228',lat:21.1339,lng:73.0715,cnt:45},
-      {n:'Vankaneda',c:'524223',lat:21.1572,lng:72.9534,cnt:45},
-      {n:'Barasadi',c:'524229',lat:21.1262,lng:73.0737,cnt:3},
-      {n:'Gotiya',c:'524243',lat:21.0700,lng:73.0000,cnt:12},
-      {n:'Haripura',c:'524217',lat:21.0800,lng:72.9700,cnt:5},
-      {n:'Niyol',c:'524215',lat:21.1100,lng:72.9600,cnt:1}
-    ]},
-  umarpada:{label:'Umarpada',center:[21.46,73.49],zoom:11,pdfs:[],
-    villages:[
-      {n:'Rudhi Gavan',c:'523930',lat:21.4296,lng:73.6389,cnt:633},
-      {n:'Velavi',c:'523888',lat:21.4998,lng:73.4740,cnt:237},
-      {n:'Sadadapani',c:'523887',lat:21.4996,lng:73.4578,cnt:181},
-      {n:'Vadpada',c:'523937',lat:21.4243,lng:73.6038,cnt:175},
-      {n:'Chimipatal',c:'523910',lat:21.4472,lng:73.6124,cnt:149},
-      {n:'Darda',c:'523924',lat:21.4387,lng:73.4843,cnt:72},
-      {n:'Govat',c:'523901',lat:21.4600,lng:73.4200,cnt:76},
-      {n:'Sampura',c:'523899',lat:21.4619,lng:73.3856,cnt:92},
-      {n:'Khodamba',c:'523913',lat:21.4509,lng:73.5624,cnt:69},
-      {n:'Kadvidadra',c:'523900',lat:21.4631,lng:73.3974,cnt:63},
-      {n:'Chandrapada',c:'523916',lat:21.4700,lng:73.5000,cnt:36},
-      {n:'Charni',c:'523886',lat:21.4600,lng:73.4500,cnt:30},
-      {n:'Nana Sutkhadka',c:'523905',lat:21.4400,lng:73.5000,cnt:47},
-      {n:'Umarjhar',c:'523894',lat:21.4700,lng:73.4300,cnt:45},
-      {n:'Unchvan',c:'523917',lat:21.5000,lng:73.5000,cnt:49},
-      {n:'Bardipada',c:'523929',lat:21.4500,lng:73.5500,cnt:25},
-      {n:'Kevdi (Sharda)',c:'523890',lat:21.4800,lng:73.4500,cnt:19},
-      {n:'Umarkhadi',c:'523893',lat:21.4500,lng:73.4100,cnt:1},
-      {n:'Sarda',c:'523889',lat:21.4900,lng:73.4500,cnt:2},
-      {n:'Pada',c:'523898',lat:21.4200,lng:73.4800,cnt:2},
-      {n:'Bilvan',c:'523928',lat:21.4400,lng:73.5200,cnt:1}
-    ]}
+var GH='https://helin-bi.github.io/svamitva/pdfs/';
+
+/* ════════════════ DISTRICT CONFIG ════════════════ */
+var DISTRICTS={
+  surat:{label:'Surat',talukas:['bardoli','chorasi','kamrej','mahuva','mandvi','mangrol','olpad','palsana','umarpada']},
+  navsari:{label:'Navsari',talukas:['bansda','chikhli','gandevi','jalalpore','navsari_t']},
+  valsad:{label:'Valsad',talukas:['dharampur','pardi','umbergaon','valsad_t','vapi']}
 };
 
-/* remove duplicate in bardoli (Movachhi appeared twice and Umbhel in kamrej) */
-DATA.bardoli.villages=DATA.bardoli.villages.filter(function(v,i,a){return a.findIndex(function(x){return x.c===v.c})===i;});
-DATA.kamrej.villages=DATA.kamrej.villages.filter(function(v,i,a){return a.findIndex(function(x){return x.c===v.c})===i;});
+/* ════════════════ HDFC BRANCHES ════════════════ */
+var HDFC=[
+  {n:'HDFC Bardoli (Sardar Patel Marg)',addr:'Bardoli, Surat',lat:21.1255,lng:73.1125},
+  {n:'HDFC Bardoli (Surbhi Arcade)',addr:'Bardoli, Surat',lat:21.1337,lng:73.1098},
+  {n:'HDFC Bardoli (Madhi)',addr:'Madhi, Surat',lat:21.1462,lng:73.2514},
+  {n:'HDFC Navsari (Railway Rd)',addr:'Navsari',lat:20.9519,lng:72.9215},
+  {n:'HDFC Navsari (Lunsikui Rd)',addr:'Navsari',lat:20.9486,lng:72.9376},
+  {n:'HDFC Navsari (Chhapra)',addr:'Navsari',lat:20.9461,lng:72.9301},
+  {n:'HDFC Chikhli',addr:'Chikhli, Navsari',lat:20.7580,lng:73.0613},
+  {n:'HDFC Gandevi',addr:'Gandevi, Navsari',lat:20.8178,lng:72.9959},
+  {n:'HDFC Valsad (Tithal Rd)',addr:'Valsad',lat:20.6065,lng:72.9189},
+  {n:'HDFC Valsad (Halar Rd)',addr:'Valsad',lat:20.6101,lng:72.9278},
+  {n:'HDFC Valsad (Abrama)',addr:'Abrama, Valsad',lat:20.5922,lng:72.9445},
+  {n:'HDFC Vapi (Koparli Rd)',addr:'Vapi, Valsad',lat:20.3760,lng:72.9230},
+  {n:'HDFC Vapi (Chala)',addr:'Vapi, Valsad',lat:20.3934,lng:72.8938}
+];
 
-var curTaluka='bardoli',userLat=null,userLng=null,selV=null,allMarkers=[],tblSort='count',gpsWatching=false,gpsM=null,gpsC=null;
+/* ════════════════ VILLAGE DATA ════════════════ */
+var DATA={
+  bardoli:{label:'Bardoli',dist:'surat',center:[21.12,73.15],zoom:11,pdfs:['Akoti','Allu','Astan','Bamni','Bamroli','Bhamaiya','Bharampor'],
+    v:[{n:'Varad',c:'524283',lat:21.1704,lng:73.1320,cnt:305},{n:'Samthan',c:'524279',lat:21.1908,lng:73.1943,cnt:209},{n:'Uva',c:'524314',lat:21.1255,lng:73.1122,cnt:206},{n:'Kantali',c:'524280',lat:21.1925,lng:73.1792,cnt:203},{n:'Nizar',c:'524332',lat:21.0582,lng:73.1217,cnt:188},{n:'Singod',c:'524277',lat:21.1972,lng:73.2223,cnt:180},{n:'Umrakh',c:'524286',lat:21.1439,lng:73.0815,cnt:161},{n:'Vadoli',c:'524339',lat:21.0280,lng:73.0804,cnt:154},{n:'Uchharel',c:'524269',lat:21.2110,lng:73.1910,cnt:135},{n:'Sejvad',c:'524326',lat:21.0935,lng:73.1999,cnt:134},{n:'Bhuvasan',c:'524336',lat:21.0449,lng:73.0693,cnt:131},{n:'Goji',c:'524321',lat:21.0698,lng:73.1084,cnt:127},{n:'Karachaka',c:'524315',lat:21.1383,lng:73.1932,cnt:119},{n:'Ninat',c:'524330',lat:21.0614,lng:73.0652,cnt:119},{n:'Kharvasa',c:'524285',lat:21.1586,lng:73.1158,cnt:116},{n:'Palsod',c:'524292',lat:21.1650,lng:73.1600,cnt:108},{n:'Astan',c:'524287',lat:21.1442,lng:73.1158,cnt:109},{n:'Bharampor',c:'524266',lat:21.1941,lng:73.1378,cnt:106},{n:'Dhamdod Lumbha',c:'524302',lat:21.1395,lng:73.1368,cnt:103},{n:'Tarbhon',c:'524343',lat:21.0201,lng:73.0597,cnt:103},{n:'Bhamaiya',c:'524268',lat:21.2098,lng:73.1792,cnt:100},{n:'Nasura',c:'524275',lat:21.2073,lng:73.2504,cnt:82},{n:'Nadida',c:'524304',lat:21.1084,lng:73.0874,cnt:84},{n:'Sankri',c:'524301',lat:21.1566,lng:73.1674,cnt:80},{n:'Movachhi',c:'524264',lat:21.1795,lng:73.1084,cnt:80},{n:'Haripura',c:'524270',lat:21.2104,lng:73.2065,cnt:79},{n:'Isanpor',c:'524284',lat:21.1600,lng:73.1200,cnt:77},{n:'Isroli',c:'524319',lat:21.0996,lng:73.1275,cnt:79},{n:'Masad',c:'524272',lat:21.2142,lng:73.2434,cnt:79},{n:'Bamni',c:'524278',lat:21.1897,lng:73.2087,cnt:90},{n:'Vadhvaniya',c:'524276',lat:21.2029,lng:73.2463,cnt:69},{n:'Vadhava',c:'524308',lat:21.1284,lng:73.1733,cnt:53},{n:'Rajpura Lumbha',c:'524289',lat:21.1504,lng:73.1482,cnt:44},{n:'Bamroli',c:'524322',lat:21.0895,lng:73.1320,cnt:39},{n:'Junvani',c:'524295',lat:21.1806,lng:73.2323,cnt:36},{n:'Ruwa',c:'524282',lat:21.1750,lng:73.1350,cnt:33},{n:'Vaghech Sarbhon',c:'524341',lat:21.0200,lng:73.0420,cnt:33},{n:'Pardi Kadod',c:'524281',lat:21.1913,lng:73.1674,cnt:26},{n:'Mangrolia',c:'524300',lat:21.1571,lng:73.1932,cnt:4},{n:'Manekpor',c:'524313',lat:21.0971,lng:73.2353,cnt:12},{n:'Gotasa',c:'524323',lat:21.0894,lng:73.1453,cnt:13},{n:'Allu',c:'524327',lat:21.0667,lng:73.1910,cnt:10},{n:'Kuvadiya',c:'524344',lat:21.0003,lng:73.0494,cnt:9},{n:'Vankaner',c:'524328',lat:21.0764,lng:73.1733,cnt:3},{n:'Pardi Valod',c:'524333',lat:21.0533,lng:73.1733,cnt:3},{n:'Pardi Vagha',c:'524342',lat:21.0195,lng:73.0538,cnt:1},{n:'Moti Falod',c:'524265',lat:21.2076,lng:73.1398,cnt:1},{n:'Akoti',c:'524293',lat:21.1708,lng:73.1858,cnt:1}]},
+  chorasi:{label:'Chorasi',dist:'surat',center:[21.10,72.93],zoom:11,pdfs:[],
+    v:[{n:'Bonand',c:'524193',lat:21.1120,lng:72.9151,cnt:203},{n:'Kharvasa',c:'524192',lat:21.1214,lng:72.9010,cnt:178},{n:'Ravla Alias Vaktana',c:'524194',lat:21.1002,lng:72.9248,cnt:161},{n:'Bhatia',c:'524195',lat:21.0834,lng:72.9379,cnt:77},{n:'Khambhasla',c:'524188',lat:21.1287,lng:72.9123,cnt:53},{n:'Samrod',c:'524202',lat:21.0684,lng:72.9427,cnt:46},{n:'Mohni',c:'524185',lat:21.1385,lng:72.9289,cnt:36},{n:'Kachholi',c:'524201',lat:21.0633,lng:72.9354,cnt:4},{n:'Timbarva',c:'524186',lat:21.0850,lng:72.9300,cnt:3},{n:'Goja',c:'524187',lat:21.1263,lng:72.9176,cnt:1}]},
+  kamrej:{label:'Kamrej',dist:'surat',center:[21.26,73.01],zoom:11,pdfs:[],
+    v:[{n:'Ghala',c:'524100',lat:21.2976,lng:73.0361,cnt:540},{n:'Jokha',c:'524134',lat:21.2391,lng:73.0140,cnt:395},{n:'Sevni',c:'524136',lat:21.2233,lng:73.0715,cnt:348},{n:'Umbhel',c:'524159',lat:21.1896,lng:72.9682,cnt:388},{n:'Dhoran Paradi',c:'524102',lat:21.3134,lng:72.9645,cnt:297},{n:'Digas',c:'524123',lat:21.2653,lng:73.0516,cnt:300},{n:'Antroli',c:'524096',lat:21.3324,lng:72.9402,cnt:258},{n:'Orna',c:'524126',lat:21.2503,lng:73.0605,cnt:225},{n:'Ladvi',c:'524146',lat:21.1948,lng:72.9557,cnt:228},{n:'Karjan',c:'524101',lat:21.3071,lng:73.0088,cnt:214},{n:'Mankna',c:'524148',lat:21.2091,lng:72.9833,cnt:194},{n:'Kosamadi',c:'524142',lat:21.2650,lng:73.0000,cnt:187},{n:'Morthana',c:'524141',lat:21.2200,lng:73.0177,cnt:168},{n:'Koli Bharthana',c:'524121',lat:21.2641,lng:73.0117,cnt:167},{n:'Valan',c:'524149',lat:21.2035,lng:73.0151,cnt:154},{n:'Kosmada',c:'524143',lat:21.2074,lng:72.9313,cnt:151},{n:'Parab',c:'524158',lat:21.1948,lng:73.0117,cnt:150},{n:'Machhi',c:'524108',lat:21.2825,lng:73.0608,cnt:143},{n:'Timba',c:'524124',lat:21.2655,lng:73.0959,cnt:136},{n:'Choryasi',c:'524105',lat:21.3082,lng:72.9551,cnt:129},{n:'Khanpur',c:'524153',lat:21.2067,lng:73.0855,cnt:128},{n:'Shekhpur',c:'524094',lat:21.3311,lng:72.9069,cnt:116},{n:'Dungra',c:'524111',lat:21.2936,lng:73.0177,cnt:117},{n:'Delad',c:'524137',lat:21.2360,lng:73.1291,cnt:118},{n:'Nagod',c:'524155',lat:21.2219,lng:73.1243,cnt:100},{n:'Chikhli',c:'524161',lat:21.2070,lng:73.1125,cnt:102},{n:'Netrang',c:'524122',lat:21.2665,lng:73.0354,cnt:98},{n:'Segva',c:'524140',lat:21.2226,lng:73.0394,cnt:94},{n:'Bhairav',c:'524106',lat:21.2912,lng:72.9741,cnt:86},{n:'Navi Paradi',c:'524098',lat:21.3331,lng:72.9588,cnt:79},{n:'Rundhvada',c:'524156',lat:21.2300,lng:73.0700,cnt:74},{n:'Akhakhol',c:'524099',lat:21.3405,lng:72.9903,cnt:71},{n:'Delad',c:'524112',lat:21.2502,lng:73.0870,cnt:56},{n:'Dharutha',c:'524128',lat:21.2437,lng:73.0383,cnt:50},{n:'Jior',c:'524110',lat:21.2912,lng:73.0302,cnt:36},{n:'Mirapur',c:'524152',lat:21.2075,lng:73.0665,cnt:38},{n:'Tharoli',c:'524097',lat:21.3407,lng:72.9505,cnt:43},{n:'Pali',c:'524157',lat:21.1990,lng:73.0383,cnt:43},{n:'Simadi',c:'524133',lat:21.2235,lng:72.9955,cnt:33},{n:'Dhatva',c:'524109',lat:21.2869,lng:73.0335,cnt:25},{n:'Dungar',c:'524154',lat:21.2074,lng:73.1062,cnt:19},{n:'Alura',c:'524150',lat:21.1987,lng:73.0320,cnt:20},{n:'Vansdarundhi',c:'524151',lat:21.2054,lng:73.0537,cnt:14},{n:'Dethli',c:'524138',lat:21.2365,lng:73.1291,cnt:12},{n:'Chhedchha',c:'524144',lat:21.2100,lng:72.9700,cnt:11},{n:'Valthan',c:'524147',lat:21.2106,lng:72.9785,cnt:2},{n:'Nansad',c:'524120',lat:21.2650,lng:72.9926,cnt:1},{n:'Oviyan',c:'524145',lat:21.1905,lng:72.9383,cnt:1},{n:'Kholeshwar',c:'524107',lat:21.2800,lng:73.0200,cnt:1},{n:'Ghaludi',c:'524095',lat:21.3382,lng:72.9235,cnt:1}]},
+  mahuva:{label:'Mahuva',dist:'surat',center:[20.97,73.16],zoom:11,pdfs:[],
+    v:[{n:'Karcheliya',c:'524381',lat:20.9703,lng:73.2087,cnt:378},{n:'Ondach',c:'524360',lat:21.0155,lng:73.1276,cnt:283},{n:'Jhervavra',c:'524390',lat:21.0100,lng:73.1500,cnt:206},{n:'Kani',c:'524356',lat:21.0334,lng:73.1121,cnt:200},{n:'Gunasvel',c:'524397',lat:20.9290,lng:73.1837,cnt:195},{n:'Dholikui',c:'524377',lat:20.9775,lng:73.1084,cnt:177},{n:'Vank',c:'524392',lat:20.9305,lng:73.2146,cnt:109},{n:'Bartad',c:'524380',lat:20.9655,lng:73.1615,cnt:91},{n:'Kadiya',c:'524370',lat:20.9990,lng:73.1497,cnt:81},{n:'Nasura',c:'524275',lat:20.9800,lng:73.1700,cnt:82},{n:'Puna',c:'524395',lat:20.9328,lng:73.2382,cnt:55},{n:'Haladva',c:'524407',lat:20.9032,lng:73.2583,cnt:52},{n:'Samba',c:'524401',lat:20.9068,lng:73.2087,cnt:45},{n:'Kachhal',c:'524369',lat:21.0050,lng:73.1600,cnt:43},{n:'Lasanpor',c:'524411',lat:20.9200,lng:73.2500,cnt:41},{n:'Kavitha',c:'524374',lat:20.9500,lng:73.1800,cnt:30},{n:'Dungari',c:'524367',lat:20.9908,lng:73.2117,cnt:66},{n:'Mahuvariya',c:'524406',lat:20.9400,lng:73.2000,cnt:32},{n:'Amchak',c:'524359',lat:21.0005,lng:73.1084,cnt:25},{n:'Bamaniya',c:'524391',lat:20.9600,lng:73.1900,cnt:24},{n:'Khandal',c:'524371',lat:20.9800,lng:73.1500,cnt:24},{n:'Bhoriya',c:'524402',lat:20.9111,lng:73.2235,cnt:59},{n:'Ghadoi',c:'524388',lat:20.9700,lng:73.1900,cnt:33},{n:'Miyapur',c:'524362',lat:21.0100,lng:73.1300,cnt:16},{n:'Kadhaiya',c:'524382',lat:20.9400,lng:73.1700,cnt:18},{n:'Vasrai',c:'524396',lat:20.9700,lng:73.2000,cnt:14},{n:'Dhamkhadi',c:'524404',lat:20.9300,lng:73.2200,cnt:12},{n:'Fulvadi',c:'524378',lat:20.9800,lng:73.1200,cnt:4},{n:'Valvada',c:'524403',lat:20.9200,lng:73.2300,cnt:3},{n:'Nihali',c:'524376',lat:20.9600,lng:73.1700,cnt:2},{n:'Andhatri',c:'524365',lat:20.9900,lng:73.1900,cnt:1},{n:'Dhundhesa',c:'524354',lat:21.0200,lng:73.1000,cnt:1},{n:'Sevasan',c:'524375',lat:20.9700,lng:73.1500,cnt:1},{n:'Vadiya',c:'524366',lat:20.9500,lng:73.2000,cnt:1}]},
+  mandvi:{label:'Mandvi',dist:'surat',center:[21.30,73.22],zoom:11,pdfs:[],
+    v:[{n:'Godavadi',c:'524052',lat:21.2493,lng:73.2264,cnt:281},{n:'Tarsadabar Gam',c:'524068',lat:21.2224,lng:73.3031,cnt:210},{n:'Tuked',c:'523950',lat:21.3580,lng:73.1881,cnt:207},{n:'Amba',c:'524011',lat:21.3019,lng:73.2323,cnt:198},{n:'Gamtalav Bujrang',c:'524054',lat:21.2581,lng:73.2559,cnt:174},{n:'Devgiri',c:'523966',lat:21.4029,lng:73.3738,cnt:158},{n:'Godsamba',c:'524042',lat:21.2742,lng:73.2441,cnt:158},{n:'Madharkui',c:'523976',lat:21.3433,lng:73.1851,cnt:148},{n:'Vadod',c:'523984',lat:21.3077,lng:73.1202,cnt:147},{n:'Choramba',c:'523955',lat:21.3836,lng:73.2972,cnt:146},{n:'Munjlav',c:'523982',lat:21.3230,lng:73.0796,cnt:137},{n:'Kharoli',c:'524049',lat:21.2540,lng:73.1881,cnt:123},{n:'Dharampor',c:'523948',lat:21.3635,lng:73.1291,cnt:129},{n:'Kamlapor',c:'524048',lat:21.2309,lng:73.1881,cnt:103},{n:'Nandpor',c:'524044',lat:21.2590,lng:73.2087,cnt:93},{n:'Togapur',c:'523947',lat:21.3495,lng:73.1055,cnt:84},{n:'Varethi',c:'523945',lat:21.3999,lng:73.0346,cnt:74},{n:'Valargadh',c:'524023',lat:21.2893,lng:73.2795,cnt:70},{n:'Khanjroli',c:'524047',lat:21.2317,lng:73.1674,cnt:56},{n:'Junvan',c:'523971',lat:21.3700,lng:73.3600,cnt:40},{n:'Vareth',c:'524064',lat:21.2500,lng:73.2700,cnt:35},{n:'Ushker Ramkund',c:'523979',lat:21.3500,lng:73.1500,cnt:33},{n:'Rosvad',c:'523980',lat:21.3400,lng:73.1600,cnt:25},{n:'Varjakhan',c:'524067',lat:21.2300,lng:73.3000,cnt:21},{n:'Khod Amba',c:'523975',lat:21.3500,lng:73.2100,cnt:18},{n:'Piparia',c:'524046',lat:21.2600,lng:73.2000,cnt:16},{n:'Bori',c:'524043',lat:21.2800,lng:73.2300,cnt:8},{n:'Patal',c:'523951',lat:21.3700,lng:73.0900,cnt:5},{n:'Kevdi',c:'524029',lat:21.2900,lng:73.2200,cnt:4},{n:'Naren',c:'524019',lat:21.3000,lng:73.2500,cnt:4},{n:'Gavachhi',c:'524045',lat:21.2700,lng:73.2100,cnt:2},{n:'Jamankuva Bar',c:'524073',lat:21.2200,lng:73.3200,cnt:2},{n:'Fali',c:'523987',lat:21.3300,lng:73.1500,cnt:2},{n:'Devgadh',c:'523970',lat:21.3800,lng:73.3500,cnt:1},{n:'Jhab',c:'524012',lat:21.3100,lng:73.2400,cnt:1},{n:'Patna',c:'524016',lat:21.3200,lng:73.2100,cnt:1},{n:'Rupan',c:'524058',lat:21.2400,lng:73.2800,cnt:1}]},
+  mangrol:{label:'Mangrol',dist:'surat',center:[21.43,73.10],zoom:11,pdfs:[],
+    v:[{n:'Velachha',c:'523830',lat:21.4311,lng:73.0154,cnt:509},{n:'Ambavadi',c:'523849',lat:21.4346,lng:73.1962,cnt:236},{n:'Dungri',c:'523869',lat:21.4023,lng:73.1276,cnt:235},{n:'Siyalaj',c:'523826',lat:21.4204,lng:72.9468,cnt:222},{n:'Kathvada',c:'523823',lat:21.4440,lng:73.1000,cnt:219},{n:'Bhilvada',c:'523805',lat:21.4800,lng:73.0700,cnt:206},{n:'Harsani',c:'523803',lat:21.4813,lng:73.1792,cnt:179},{n:'Ratola',c:'523871',lat:21.3952,lng:73.1851,cnt:170},{n:'Vadoli',c:'523834',lat:21.4200,lng:73.1300,cnt:163},{n:'Dholikui',c:'523839',lat:21.4445,lng:73.2146,cnt:161},{n:'Lindiad',c:'523863',lat:21.4100,lng:73.0500,cnt:193},{n:'Nandav',c:'523793',lat:21.4796,lng:73.0095,cnt:186},{n:'Nogama',c:'523854',lat:21.4202,lng:73.0800,cnt:147},{n:'Gijram',c:'523800',lat:21.4861,lng:73.1143,cnt:132},{n:'Asarma',c:'523820',lat:21.4476,lng:73.0627,cnt:133},{n:'Borsad',c:'523870',lat:21.3932,lng:73.1417,cnt:122},{n:'Lavet',c:'523811',lat:21.4796,lng:73.2470,cnt:113},{n:'Pipodara',c:'523862',lat:21.3900,lng:73.1500,cnt:114},{n:'Sava',c:'523822',lat:21.4500,lng:73.0700,cnt:106},{n:'Vasravi',c:'523850',lat:21.4100,lng:73.1700,cnt:99},{n:'Bhatkol',c:'523861',lat:21.3800,lng:73.1900,cnt:95},{n:'Nandola',c:'523841',lat:21.4100,lng:73.1600,cnt:95},{n:'Kevdi (Kund)',c:'523809',lat:21.4800,lng:73.1300,cnt:88},{n:'Kanvada',c:'523817',lat:21.4600,lng:73.1000,cnt:85},{n:'Nana Borsara',c:'523791',lat:21.5000,lng:72.9800,cnt:84},{n:'Khareda',c:'523813',lat:21.4600,lng:73.0900,cnt:83},{n:'Jhinora',c:'523838',lat:21.4300,lng:73.1400,cnt:92},{n:'Motifali',c:'523812',lat:21.4700,lng:73.0600,cnt:73},{n:'Vad',c:'523807',lat:21.4700,lng:73.0700,cnt:69},{n:'Pataldevi',c:'523842',lat:21.4200,lng:73.1800,cnt:66},{n:'Valesa',c:'523858',lat:21.3900,lng:73.2000,cnt:57},{n:'Vastan',c:'523852',lat:21.4000,lng:73.1700,cnt:54},{n:'Molvan',c:'523865',lat:21.3900,lng:73.2000,cnt:52},{n:'Dinod',c:'523797',lat:21.4900,lng:73.0300,cnt:50},{n:'Ansodala',c:'523855',lat:21.4200,lng:73.1800,cnt:44},{n:'Surali',c:'523853',lat:21.4100,lng:73.1800,cnt:42},{n:'Jhankharda',c:'523851',lat:21.4100,lng:73.1700,cnt:47},{n:'Bhadkuva',c:'523806',lat:21.4700,lng:73.0800,cnt:56},{n:'Kargara',c:'523814',lat:21.4700,lng:73.0800,cnt:27},{n:'Ghodbar',c:'523879',lat:21.3600,lng:73.2200,cnt:26},{n:'Kansali',c:'523873',lat:21.3900,lng:73.2000,cnt:21},{n:'Limodara',c:'523866',lat:21.3800,lng:73.2100,cnt:19},{n:'Ankdod',c:'523799',lat:21.4600,lng:73.0500,cnt:19},{n:'Luvara',c:'523819',lat:21.4500,lng:73.0600,cnt:5},{n:'Nani Fali',c:'523840',lat:21.4300,lng:73.1900,cnt:5},{n:'Chhamuchhal',c:'523864',lat:21.3800,lng:73.2000,cnt:5},{n:'Umelav',c:'523868',lat:21.3800,lng:73.2100,cnt:2},{n:'Vansoli',c:'523795',lat:21.5000,lng:73.0100,cnt:2},{n:'Gadkachh',c:'523837',lat:21.4400,lng:73.1300,cnt:3},{n:'Charetha',c:'523835',lat:21.4300,lng:73.1200,cnt:2},{n:'Ranakpor',c:'523832',lat:21.4600,lng:73.1200,cnt:1},{n:'Shenthi',c:'523856',lat:21.4000,lng:73.1700,cnt:1},{n:'Panetha',c:'523857',lat:21.4000,lng:73.1800,cnt:1}]},
+  olpad:{label:'Olpad',dist:'surat',center:[21.38,72.79],zoom:11,pdfs:[],
+    v:[{n:'Karanj',c:'523686',lat:21.4155,lng:72.6809,cnt:259},{n:'Kimamli',c:'523700',lat:21.4242,lng:72.9176,cnt:257},{n:'Rajnagar',c:'934507',lat:21.3900,lng:72.7600,cnt:222},{n:'Kadrama',c:'523694',lat:21.4063,lng:72.8058,cnt:186},{n:'Sondlakhara',c:'523717',lat:21.3666,lng:72.7156,cnt:179},{n:'Anita',c:'523698',lat:21.4228,lng:72.8696,cnt:173},{n:'Sithan',c:'523734',lat:21.3534,lng:72.8408,cnt:170},{n:'Morthan',c:'523724',lat:21.3587,lng:72.8124,cnt:162},{n:'Atodra',c:'523736',lat:21.3383,lng:72.7962,cnt:153},{n:'Achharan',c:'523735',lat:21.3459,lng:72.8097,cnt:152},{n:'Kanthraj',c:'523733',lat:21.3649,lng:72.8408,cnt:146},{n:'Bhadol',c:'523695',lat:21.4141,lng:72.8183,cnt:130},{n:'Asnad',c:'523709',lat:21.3967,lng:72.7489,cnt:125},{n:'Bolav',c:'523699',lat:21.4160,lng:72.8840,cnt:123},{n:'Kamroli',c:'523688',lat:21.4050,lng:72.7112,cnt:117},{n:'Delasa',c:'523715',lat:21.3580,lng:72.6757,cnt:111},{n:'Bhatgam',c:'523720',lat:21.3738,lng:72.7437,cnt:108},{n:'Mindhi',c:'523711',lat:21.3874,lng:72.7082,cnt:103},{n:'Vadoli',c:'523696',lat:21.4309,lng:72.8405,cnt:100},{n:'Sondamitha',c:'523708',lat:21.3830,lng:72.7696,cnt:100},{n:'Karamla',c:'523746',lat:21.3144,lng:72.7968,cnt:95},{n:'Koba',c:'523691',lat:21.4261,lng:72.7681,cnt:93},{n:'Pardi Koba',c:'523692',lat:21.4228,lng:72.7670,cnt:84},{n:'Gola',c:'523723',lat:21.3625,lng:72.7932,cnt:75},{n:'Obhla',c:'523732',lat:21.3693,lng:72.8582,cnt:69},{n:'Kunkni',c:'523781',lat:21.2467,lng:72.7341,cnt:68},{n:'Asnabad',c:'523744',lat:21.3266,lng:72.7533,cnt:49},{n:'Sarsana',c:'523707',lat:21.3954,lng:72.7769,cnt:49},{n:'Kachhab',c:'523726',lat:21.3807,lng:72.8567,cnt:36},{n:'Takarma',c:'523706',lat:21.3823,lng:72.7902,cnt:33},{n:'Balkas',c:'523763',lat:21.2795,lng:72.7577,cnt:27},{n:'Thothab',c:'523690',lat:21.4242,lng:72.7637,cnt:18},{n:'Dihen',c:'523782',lat:21.2571,lng:72.6890,cnt:4},{n:'Naghoi',c:'523710',lat:21.3822,lng:72.7208,cnt:2}]},
+  palsana:{label:'Palsana',dist:'surat',center:[21.11,73.00],zoom:11,pdfs:[],
+    v:[{n:'Tundi',c:'524232',lat:21.1222,lng:73.0301,cnt:232},{n:'Dhamdod',c:'524240',lat:21.1042,lng:73.0494,cnt:149},{n:'Antroli',c:'524216',lat:21.0900,lng:72.9800,cnt:136},{n:'Gangpor',c:'524230',lat:21.0900,lng:72.9900,cnt:103},{n:'Erthan',c:'524235',lat:21.1189,lng:72.9488,cnt:97},{n:'Vadadala',c:'524236',lat:21.1140,lng:72.9623,cnt:72},{n:'Ghaluda',c:'524239',lat:21.0965,lng:73.0236,cnt:51},{n:'Jetpor',c:'524228',lat:21.1339,lng:73.0715,cnt:45},{n:'Vankaneda',c:'524223',lat:21.1572,lng:72.9534,cnt:45},{n:'Gotiya',c:'524243',lat:21.0700,lng:73.0000,cnt:12},{n:'Haripura',c:'524217',lat:21.0800,lng:72.9700,cnt:5},{n:'Barasadi',c:'524229',lat:21.1262,lng:73.0737,cnt:3},{n:'Niyol',c:'524215',lat:21.1100,lng:72.9600,cnt:1}]},
+  umarpada:{label:'Umarpada',dist:'surat',center:[21.46,73.49],zoom:11,pdfs:[],
+    v:[{n:'Rudhi Gavan',c:'523930',lat:21.4296,lng:73.6389,cnt:633},{n:'Velavi',c:'523888',lat:21.4998,lng:73.4740,cnt:237},{n:'Sadadapani',c:'523887',lat:21.4996,lng:73.4578,cnt:181},{n:'Vadpada',c:'523937',lat:21.4243,lng:73.6038,cnt:175},{n:'Chimipatal',c:'523910',lat:21.4472,lng:73.6124,cnt:149},{n:'Sampura',c:'523899',lat:21.4619,lng:73.3856,cnt:92},{n:'Darda',c:'523924',lat:21.4387,lng:73.4843,cnt:72},{n:'Govat',c:'523901',lat:21.4600,lng:73.4200,cnt:76},{n:'Khodamba',c:'523913',lat:21.4509,lng:73.5624,cnt:69},{n:'Kadvidadra',c:'523900',lat:21.4631,lng:73.3974,cnt:63},{n:'Chandrapada',c:'523916',lat:21.4700,lng:73.5000,cnt:36},{n:'Charni',c:'523886',lat:21.4600,lng:73.4500,cnt:30},{n:'Nana Sutkhadka',c:'523905',lat:21.4400,lng:73.5000,cnt:47},{n:'Umarjhar',c:'523894',lat:21.4700,lng:73.4300,cnt:45},{n:'Unchvan',c:'523917',lat:21.5000,lng:73.5000,cnt:49},{n:'Bardipada',c:'523929',lat:21.4500,lng:73.5500,cnt:25},{n:'Kevdi (Sharda)',c:'523890',lat:21.4800,lng:73.4500,cnt:19},{n:'Umarkhadi',c:'523893',lat:21.4500,lng:73.4100,cnt:1},{n:'Sarda',c:'523889',lat:21.4900,lng:73.4500,cnt:2},{n:'Pada',c:'523898',lat:21.4200,lng:73.4800,cnt:2},{n:'Bilvan',c:'523928',lat:21.4400,lng:73.5200,cnt:1}]},
+  /* ── NAVSARI ── */
+  bansda:{label:'Bansda',dist:'navsari',center:[20.80,73.33],zoom:11,pdfs:[],
+    v:[{n:'Umarkui',c:'523197',lat:20.7290,lng:73.3156,cnt:64},{n:'Kelkutch',c:'523139',lat:20.8251,lng:73.3738,cnt:39},{n:'Rupvel',c:'523144',lat:20.8107,lng:73.2588,cnt:30},{n:'Vandarvela',c:'523177',lat:20.7598,lng:73.2117,cnt:29},{n:'Kureliya',c:'523141',lat:20.8118,lng:73.3561,cnt:6},{n:'Sindhai',c:'523132',lat:20.8628,lng:73.3178,cnt:8},{n:'Sara',c:'523159',lat:20.8029,lng:73.4121,cnt:1}]},
+  chikhli:{label:'Chikhli',dist:'navsari',center:[20.79,73.11],zoom:11,pdfs:[],
+    v:[{n:'Talavchora',c:'523091',lat:20.7321,lng:73.0575,cnt:89},{n:'Harangam',c:'523067',lat:20.7949,lng:73.1660,cnt:68},{n:'Donja',c:'523068',lat:20.7806,lng:73.1881,cnt:66},{n:'Amadhara',c:'523089',lat:20.7215,lng:73.1110,cnt:58},{n:'Kangvai',c:'523048',lat:20.8691,lng:73.1749,cnt:61},{n:'Syada',c:'523086',lat:20.7237,lng:73.1674,cnt:40},{n:'Minkachchh',c:'523051',lat:20.8471,lng:73.1111,cnt:37},{n:'Manekpor',c:'523066',lat:20.7961,lng:73.1276,cnt:55},{n:'Kharoli',c:'523059',lat:20.8425,lng:73.2161,cnt:33},{n:'Ghekti',c:'523075',lat:20.7576,lng:73.0036,cnt:22},{n:'Barolia',c:'523052',lat:20.8429,lng:73.0907,cnt:18},{n:'Khudvel',c:'523081',lat:20.7900,lng:73.1500,cnt:19},{n:'Surkhai',c:'523061',lat:20.8114,lng:73.1792,cnt:18},{n:'Kaliyari',c:'523087',lat:20.7251,lng:73.1478,cnt:12},{n:'Ranverikhurd',c:'523058',lat:20.8200,lng:73.1800,cnt:8},{n:'Kanbhai',c:'523085',lat:20.8000,lng:73.1200,cnt:2},{n:'Saravani',c:'523083',lat:20.7300,lng:73.1200,cnt:1}]},
+  gandevi:{label:'Gandevi',dist:'navsari',center:[20.83,72.99],zoom:11,pdfs:[],
+    v:[{n:'Kotha',c:'523013',lat:20.8146,lng:72.9254,cnt:274},{n:'Vadsangal',c:'523006',lat:20.8188,lng:73.0141,cnt:134},{n:'Valoti',c:'523024',lat:20.7924,lng:72.9903,cnt:151},{n:'Ajrai',c:'523008',lat:20.8333,lng:72.9962,cnt:123},{n:'Ichhapor',c:'522989',lat:20.8639,lng:72.9885,cnt:121},{n:'Endhal',c:'523004',lat:20.8441,lng:73.0597,cnt:100},{n:'Devdha',c:'523025',lat:20.7968,lng:72.9713,cnt:99},{n:'Pathri',c:'523002',lat:20.8410,lng:73.0007,cnt:74},{n:'Pinjra',c:'522990',lat:20.8715,lng:73.0103,cnt:67},{n:'Ambheta',c:'523022',lat:20.8500,lng:73.0200,cnt:62},{n:'Nandarkha',c:'523033',lat:20.7704,lng:73.0154,cnt:56},{n:'Kalvach',c:'523021',lat:20.8300,lng:73.0100,cnt:57},{n:'Pati',c:'523023',lat:20.8200,lng:73.0000,cnt:45},{n:'Mohanpur',c:'522986',lat:20.8700,lng:73.0300,cnt:48},{n:'Sarikhurd',c:'523015',lat:20.8000,lng:72.9700,cnt:49},{n:'Pipaldhara',c:'522996',lat:20.8600,lng:72.9800,cnt:41},{n:'Gandeva',c:'522994',lat:20.8400,lng:72.9700,cnt:43},{n:'Rahej',c:'523007',lat:20.8250,lng:72.9900,cnt:41},{n:'Ganghor',c:'523010',lat:20.8100,lng:72.9800,cnt:12},{n:'Deshad',c:'523020',lat:20.8300,lng:72.9950,cnt:14},{n:'Manekpor',c:'522997',lat:20.8150,lng:72.9600,cnt:17},{n:'Kalamtha',c:'523029',lat:20.7800,lng:73.0200,cnt:15},{n:'Duwada',c:'523005',lat:20.8600,lng:73.0000,cnt:11},{n:'Khaparwada',c:'523038',lat:20.7700,lng:73.0500,cnt:3},{n:'Bilimora CT',c:'523042',lat:20.7600,lng:72.9700,cnt:8},{n:'Gadat',c:'522998',lat:20.8550,lng:72.9700,cnt:2},{n:'Khakhwada',c:'523001',lat:20.8400,lng:72.9800,cnt:2},{n:'Khapariya',c:'522995',lat:20.8500,lng:72.9650,cnt:1},{n:'Dhakwada',c:'523031',lat:20.7900,lng:73.0300,cnt:1},{n:'Ancheli',c:'523000',lat:20.8600,lng:72.9700,cnt:2},{n:'Sonwadi',c:'522999',lat:20.8500,lng:72.9700,cnt:1},{n:'Salej',c:'522988',lat:20.8700,lng:73.0000,cnt:1},{n:'Vasan',c:'523012',lat:20.8200,lng:72.9500,cnt:1}]},
+  jalalpore:{label:'Jalalpore',dist:'navsari',center:[21.00,72.85],zoom:11,pdfs:[],
+    v:[{n:'Dipla',c:'522943',lat:21.0013,lng:72.7511,cnt:361},{n:'Bhinar',c:'522945',lat:20.9896,lng:72.8152,cnt:339},{n:'Simalgam',c:'522949',lat:20.9983,lng:72.8538,cnt:288},{n:'Umbhrat',c:'522915',lat:21.0147,lng:72.7308,cnt:296},{n:'Karankhat',c:'522918',lat:21.0255,lng:72.8274,cnt:247},{n:'Danti',c:'522914',lat:21.0494,lng:72.7422,cnt:237},{n:'Parujan',c:'522919',lat:21.0131,lng:72.8368,cnt:170},{n:'Sandalpor',c:'522935',lat:21.0071,lng:72.9910,cnt:74},{n:'Sarav',c:'522978',lat:20.8531,lng:72.9210,cnt:83},{n:'Kuched',c:'522931',lat:21.0237,lng:72.9962,cnt:102},{n:'Chokhad',c:'522924',lat:21.0200,lng:72.8500,cnt:73},{n:'Karadi',c:'522961',lat:21.0300,lng:72.9300,cnt:69},{n:'Mirjapor',c:'522951',lat:21.0250,lng:72.8800,cnt:67},{n:'Pethan',c:'522963',lat:21.0350,lng:72.9400,cnt:67},{n:'Asana',c:'522926',lat:21.0300,lng:72.7800,cnt:68},{n:'Alak',c:'522933',lat:21.0150,lng:72.8200,cnt:62},{n:'Nadod',c:'522920',lat:21.0400,lng:72.8000,cnt:69},{n:'Manekpor',c:'522953',lat:21.0200,lng:72.9000,cnt:70},{n:'Magob',c:'522917',lat:21.0350,lng:72.8100,cnt:76},{n:'Dalki',c:'522939',lat:21.0000,lng:72.9000,cnt:72},{n:'Borsi',c:'522957',lat:21.0100,lng:72.9200,cnt:25},{n:'Sultanpur',c:'522972',lat:21.0500,lng:72.9500,cnt:17},{n:'Kalakachha',c:'522927',lat:21.0100,lng:72.8600,cnt:42},{n:'Wada',c:'522923',lat:21.0200,lng:72.8300,cnt:17},{n:'Tankoli',c:'522954',lat:21.0150,lng:72.9100,cnt:17},{n:'Vansi',c:'522944',lat:20.9900,lng:72.8400,cnt:22},{n:'Kanera',c:'522984',lat:20.9700,lng:72.9900,cnt:13},{n:'Mangrol',c:'522940',lat:20.9950,lng:72.9000,cnt:2},{n:'Matwad',c:'522960',lat:21.0300,lng:72.9200,cnt:3},{n:'Kothamadi',c:'522964',lat:21.0400,lng:72.9300,cnt:2},{n:'Delvada',c:'522946',lat:20.9800,lng:72.8700,cnt:1},{n:'Ethan',c:'522965',lat:21.0450,lng:72.9350,cnt:2},{n:'Hansapor',c:'522968',lat:21.0500,lng:72.9400,cnt:1},{n:'Kadoli',c:'522938',lat:20.9950,lng:72.9050,cnt:1},{n:'Karod Kothva',c:'522977',lat:20.9600,lng:72.9800,cnt:1},{n:'Machhad',c:'522962',lat:21.0350,lng:72.9250,cnt:1},{n:'Sagra',c:'522952',lat:21.0100,lng:72.9050,cnt:1},{n:'Samapor',c:'522959',lat:21.0200,lng:72.9200,cnt:1},{n:'Tavdi',c:'522955',lat:21.0150,lng:72.9100,cnt:1},{n:'Vedchha',c:'522976',lat:20.9600,lng:72.9700,cnt:1},{n:'Alura',c:'522948',lat:20.9850,lng:72.8900,cnt:1}]},
+  navsari_t:{label:'Navsari',dist:'navsari',center:[20.95,72.97],zoom:11,pdfs:[],
+    v:[{n:'Mogar',c:'522900',lat:20.8977,lng:72.9490,cnt:339},{n:'Moldhara',c:'522860',lat:20.9706,lng:72.9844,cnt:153},{n:'Amadpor',c:'522859',lat:20.9749,lng:72.9630,cnt:156},{n:'Ashtagam',c:'522881',lat:20.8996,lng:73.0394,cnt:199},{n:'Padgha',c:'522855',lat:20.9880,lng:72.9497,cnt:192},{n:'Ugat',c:'522876',lat:20.9400,lng:73.0200,cnt:139},{n:'Ambada',c:'522875',lat:20.9525,lng:73.0444,cnt:112},{n:'Kurel',c:'522852',lat:20.9300,lng:72.9500,cnt:112},{n:'Parthan',c:'522847',lat:21.0148,lng:72.9619,cnt:92},{n:'Sadlav',c:'522880',lat:20.9247,lng:73.0435,cnt:107},{n:'Dhaman',c:'522846',lat:20.9600,lng:72.9200,cnt:104},{n:'Boriach',c:'522902',lat:20.8858,lng:73.0521,cnt:99},{n:'Dabhalai',c:'522890',lat:20.9400,lng:72.9700,cnt:75},{n:'Vejalpor',c:'522848',lat:20.9500,lng:72.9300,cnt:70},{n:'Kumbhar Faliya',c:'522892',lat:20.9350,lng:72.9650,cnt:70},{n:'Vachharvad',c:'522863',lat:20.9450,lng:72.9750,cnt:77},{n:'Sarpor',c:'522889',lat:20.9600,lng:72.9600,cnt:72},{n:'Singod',c:'522865',lat:20.9500,lng:72.9800,cnt:73},{n:'Un',c:'522882',lat:20.9200,lng:73.0600,cnt:53},{n:'Onchi',c:'522867',lat:20.9650,lng:72.9550,cnt:50},{n:'Pardi',c:'522888',lat:20.9700,lng:72.9650,cnt:50},{n:'Pinsad',c:'522854',lat:20.9800,lng:72.9400,cnt:50},{n:'Puni',c:'522907',lat:20.8700,lng:73.0800,cnt:50},{n:'Sarona',c:'522850',lat:20.9400,lng:72.9200,cnt:50},{n:'Shahu',c:'522864',lat:20.9550,lng:72.9750,cnt:50},{n:'Virwadi',c:'522868',lat:20.9600,lng:72.9700,cnt:50},{n:'Dandesar',c:'522866',lat:20.9600,lng:72.9600,cnt:60},{n:'Asundar',c:'522844',lat:20.9900,lng:72.9300,cnt:26},{n:'Nagdhara',c:'522891',lat:20.9450,lng:72.9650,cnt:35},{n:'Butlav',c:'522893',lat:20.9400,lng:72.9700,cnt:48},{n:'Kanbad',c:'522894',lat:20.9350,lng:72.9750,cnt:48},{n:'Kadipor',c:'522856',lat:20.9750,lng:72.9500,cnt:49},{n:'Kachhol',c:'522897',lat:20.9300,lng:72.9800,cnt:2},{n:'Tarsadi',c:'522861',lat:20.9700,lng:72.9700,cnt:23},{n:'Navapara',c:'522877',lat:20.9200,lng:73.0100,cnt:18},{n:'Toli',c:'522879',lat:20.9300,lng:73.0100,cnt:5},{n:'Vasar',c:'522874',lat:20.9400,lng:73.0200,cnt:1},{n:'Amri',c:'522858',lat:20.9800,lng:72.9600,cnt:1},{n:'Sarai',c:'522845',lat:20.9900,lng:72.9200,cnt:2}]},
+  /* ── VALSAD ── */
+  dharampur:{label:'Dharampur',dist:'valsad',center:[20.53,73.42],zoom:11,pdfs:[],
+    v:[{n:'Madhuri',c:'523400',lat:20.5071,lng:73.4593,cnt:37},{n:'Khadki',c:'523401',lat:20.4823,lng:73.4469,cnt:33},{n:'Pondha Jungle',c:'523415',lat:20.5200,lng:73.4400,cnt:30},{n:'Tanachhiya',c:'523339',lat:20.5986,lng:73.4210,cnt:20},{n:'Khanda',c:'523333',lat:20.5500,lng:73.4200,cnt:18},{n:'Ukta',c:'523378',lat:20.5100,lng:73.4300,cnt:13},{n:'Rajpuri Jungle',c:'523357',lat:20.5300,lng:73.4400,cnt:13},{n:'Bhensdara',c:'523388',lat:20.5200,lng:73.4500,cnt:14},{n:'Ganva',c:'523362',lat:20.5400,lng:73.4300,cnt:8},{n:'Molveri',c:'523365',lat:20.5300,lng:73.4200,cnt:9},{n:'Bildha',c:'523366',lat:20.5250,lng:73.4150,cnt:6},{n:'Hathanbari',c:'523342',lat:20.5700,lng:73.4000,cnt:5},{n:'Kosimpada',c:'523372',lat:20.5100,lng:73.4200,cnt:4},{n:'Zariya',c:'523380',lat:20.5050,lng:73.4100,cnt:3},{n:'Barumal',c:'523354',lat:20.5350,lng:73.4350,cnt:1},{n:'Kurgam',c:'523384',lat:20.5150,lng:73.4250,cnt:1},{n:'Rajpuri Talat',c:'523327',lat:20.5400,lng:73.3900,cnt:1},{n:'Sidumber',c:'523355',lat:20.5300,lng:73.4300,cnt:1},{n:'Tanki',c:'523382',lat:20.5100,lng:73.4150,cnt:1},{n:'Tiskari Talat',c:'523351',lat:20.5350,lng:73.4300,cnt:1},{n:'Tumbi',c:'523383',lat:20.5100,lng:73.4200,cnt:1}]},
+  pardi:{label:'Pardi',dist:'valsad',center:[20.46,72.95],zoom:11,pdfs:[],
+    v:[{n:'Motiwada',c:'523444',lat:20.4686,lng:72.9223,cnt:70},{n:'Arnala',c:'523478',lat:20.4305,lng:73.0774,cnt:50},{n:'Orvad',c:'523501',lat:20.4565,lng:72.9210,cnt:39},{n:'Saran',c:'523465',lat:20.4438,lng:72.9077,cnt:34},{n:'Rentlav',c:'523450',lat:20.4623,lng:72.9172,cnt:28},{n:'Borlai',c:'523440',lat:20.4906,lng:72.9859,cnt:21},{n:'Sukhlav',c:'523441',lat:20.4900,lng:72.9700,cnt:16},{n:'Samarpada',c:'523474',lat:20.4500,lng:73.0500,cnt:14},{n:'Kherlav',c:'523485',lat:20.4600,lng:73.0200,cnt:8},{n:'Khadki',c:'523443',lat:20.4700,lng:72.9400,cnt:7},{n:'Dashwada',c:'523452',lat:20.4750,lng:72.9600,cnt:4},{n:'Barai',c:'523481',lat:20.4400,lng:73.0100,cnt:1},{n:'Chival',c:'523477',lat:20.4550,lng:73.0300,cnt:1},{n:'Dhagadmal',c:'523475',lat:20.4500,lng:73.0400,cnt:1},{n:'Lakhmapor',c:'523458',lat:20.4650,lng:72.9800,cnt:1},{n:'Nevri',c:'523459',lat:20.4600,lng:72.9900,cnt:1},{n:'Rohina',c:'523473',lat:20.4550,lng:73.0200,cnt:1},{n:'Sukhesh',c:'523439',lat:20.4900,lng:72.9500,cnt:1}]},
+  umbergaon:{label:'Umbergaon',dist:'valsad',center:[20.29,72.76],zoom:11,pdfs:[],
+    v:[{n:'Kalai',c:'523637',lat:20.3548,lng:72.8250,cnt:288},{n:'Saronda',c:'523659',lat:20.2560,lng:72.7600,cnt:87},{n:'Ahu',c:'523668',lat:20.2290,lng:72.7777,cnt:72},{n:'Eklahre',c:'523644',lat:20.3200,lng:72.7900,cnt:33},{n:'Pali',c:'523641',lat:20.3400,lng:72.7600,cnt:28},{n:'Borigam',c:'523655',lat:20.2700,lng:72.7700,cnt:21},{n:'Nahuli',c:'523645',lat:20.3100,lng:72.7800,cnt:16},{n:'Vankas',c:'523666',lat:20.2900,lng:72.7600,cnt:12},{n:'Manda',c:'523653',lat:20.2700,lng:72.7800,cnt:12},{n:'Angam',c:'523649',lat:20.3000,lng:72.7700,cnt:11},{n:'Punat',c:'523643',lat:20.3300,lng:72.7700,cnt:4},{n:'Jamburi',c:'523640',lat:20.3400,lng:72.7500,cnt:7}]},
+  valsad_t:{label:'Valsad',dist:'valsad',center:[20.60,72.93],zoom:11,pdfs:[],
+    v:[{n:'Untdi',c:'523229',lat:20.7082,lng:72.9283,cnt:248},{n:'Ronvel',c:'523287',lat:20.5606,lng:73.0376,cnt:57},{n:'Pitha',c:'523270',lat:20.6149,lng:73.0612,cnt:53},{n:'Bhagod',c:'523297',lat:20.6100,lng:72.9200,cnt:50},{n:'Chinchai',c:'523312',lat:20.5700,lng:73.0400,cnt:35},{n:'Segvi',c:'523280',lat:20.6300,lng:72.9700,cnt:31},{n:'Velvach',c:'523311',lat:20.5600,lng:73.0300,cnt:32},{n:'Dhanori',c:'523247',lat:20.6500,lng:72.9400,cnt:46},{n:'Meh',c:'523296',lat:20.6100,lng:72.9100,cnt:38},{n:'Khajurdi',c:'523256',lat:20.6400,lng:72.9300,cnt:24},{n:'Vasan',c:'523232',lat:20.6600,lng:72.9000,cnt:26},{n:'Bodlai',c:'523303',lat:20.5500,lng:73.0100,cnt:20},{n:'Gorwada',c:'523266',lat:20.6200,lng:72.9500,cnt:10},{n:'Muli',c:'523261',lat:20.6300,lng:72.9400,cnt:8},{n:'Palan',c:'523257',lat:20.6400,lng:72.9200,cnt:8},{n:'Sarangpur',c:'523272',lat:20.6100,lng:72.9600,cnt:10},{n:'Tithal',c:'523322',lat:20.5200,lng:72.8800,cnt:9},{n:'Atar',c:'523295',lat:20.6150,lng:72.9000,cnt:3},{n:'Bhoma Pardi',c:'523288',lat:20.6050,lng:72.9100,cnt:4},{n:'Rola',c:'523236',lat:20.6600,lng:72.9100,cnt:2},{n:'Atul',c:'909101',lat:20.6200,lng:72.9600,cnt:1},{n:'Bhadeli Desai',c:'523253',lat:20.6400,lng:72.9300,cnt:1},{n:'Dulsad',c:'523285',lat:20.6100,lng:72.9000,cnt:1},{n:'Fanaswada',c:'523258',lat:20.6350,lng:72.9250,cnt:1},{n:'Gorgam',c:'523234',lat:20.6600,lng:72.9050,cnt:1},{n:'Jespor',c:'523230',lat:20.6650,lng:72.9000,cnt:1},{n:'Kochwada',c:'523268',lat:20.6200,lng:72.9500,cnt:1},{n:'Magod Dungri',c:'523294',lat:20.6150,lng:72.9050,cnt:1},{n:'Navera',c:'523302',lat:20.5500,lng:73.0000,cnt:1},{n:'Segva',c:'523260',lat:20.6300,lng:72.9350,cnt:1},{n:'Umarsadi',c:'523242',lat:20.6550,lng:72.9150,cnt:1}]},
+  vapi:{label:'Vapi',dist:'valsad',center:[20.40,72.91],zoom:11,pdfs:[],
+    v:[{n:'Koparli',c:'523493',lat:20.3792,lng:72.9896,cnt:69},{n:'Morai',c:'523469',lat:20.4209,lng:72.9107,cnt:56},{n:'Tarakpardi',c:'523466',lat:20.4366,lng:72.8796,cnt:34},{n:'Pandor',c:'523486',lat:20.4000,lng:72.9500,cnt:13}]}
+};
 
+/* de-dup */
+Object.keys(DATA).forEach(function(k){DATA[k].v=DATA[k].v.filter(function(v,i,a){return a.findIndex(function(x){return x.c===v.c})===i;});});
+
+/* ════════════════ STATE ════════════════ */
+var curDist='surat',curTK='bardoli',userLat=null,userLng=null,selV=null,allMk=[],hdfcMk=[],hdfcOn=false,tSort='count',gpsW=false,gpsM=null,gpsC=null;
+
+/* helpers */
 function gc(n){return n>=200?'#ef5350':n>=100?'#ff9800':n>=50?'#4caf50':'#78909c';}
 function tier(n){return n>=200?'Very High':n>=100?'High':n>=50?'Medium':'Low';}
 function hav(a,b,c,d){var R=6371,x=Math.sin((c-a)*Math.PI/360),y=Math.sin((d-b)*Math.PI/360),p=x*x+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*y*y;return R*2*Math.atan2(Math.sqrt(p),Math.sqrt(1-p));}
 function fd(d){return d<1?(d*1000).toFixed(0)+' m':d.toFixed(1)+' km';}
 function hasPDF(t,n){return DATA[t].pdfs.indexOf(n)>=0;}
-function pdfURL(t,n){return GITHUB+t+'/'+encodeURIComponent(n)+'.pdf';}
+function pdfURL(t,n){return GH+t+'/'+encodeURIComponent(n)+'.pdf';}
 
-var map=L.map('map').setView([21.12,73.15],11);
+/* map */
+var map=L.map('map').setView([21.12,73.15],10);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
 
-function setTaluka(k,btn){
-  curTaluka=k;
-  document.querySelectorAll('.tk-btn').forEach(function(b){b.classList.remove('active');});
+/* ── DISTRICT ── */
+function setDist(d,btn){
+  curDist=d;
+  document.querySelectorAll('.dk').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
-  closePanel();
-  ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  document.getElementById('fb-all').classList.add('active');
-  loadTaluka();
+  buildTKBar();
+  var tks=DISTRICTS[d].talukas;
+  setTK(tks[0],document.querySelector('.tk'));
 }
-
-function loadTaluka(){
-  var td=DATA[curTaluka];
-  allMarkers.forEach(function(o){map.removeLayer(o.marker);});
-  allMarkers=[];
-  var vs=td.villages;
+function buildTKBar(){
+  var bar=document.getElementById('tk-bar');
+  bar.innerHTML='';
+  DISTRICTS[curDist].talukas.forEach(function(k,i){
+    var b=document.createElement('button');
+    b.className='tk'+(i===0?' active':'');
+    b.textContent=DATA[k].label;
+    b.onclick=function(){setTK(k,b);};
+    bar.appendChild(b);
+  });
+}
+function setTK(k,btn){
+  curTK=k;
+  document.querySelectorAll('.tk').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  closeP();
+  ['fb-all','fb-hi','fb-md','fb-lo','fb-nr'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  document.getElementById('fb-all').classList.add('active');
+  loadTK();
+}
+function loadTK(){
+  var td=DATA[curTK];
+  allMk.forEach(function(o){map.removeLayer(o.m);});
+  allMk=[];
+  var vs=td.v;
   var tot=vs.reduce(function(s,v){return s+v.cnt;},0);
   var top=vs.slice().sort(function(a,b){return b.cnt-a.cnt;})[0];
   var mx=top.cnt;
-  document.getElementById('s-total').textContent=tot.toLocaleString();
-  document.getElementById('s-villages').textContent=vs.length;
+  document.getElementById('s-tot').textContent=tot.toLocaleString();
+  document.getElementById('s-vil').textContent=vs.length;
   document.getElementById('s-top').textContent=top.n+' ('+top.cnt+')';
-  document.getElementById('hdr-sub').textContent=td.label+' · '+vs.length+' villages';
+  document.getElementById('hdr-sub').textContent=DATA[curDist].label+' › '+td.label+' · '+vs.length+' villages';
   vs.forEach(function(v){
     v._mx=mx;
-    var c=gc(v.cnt),r=8+Math.round((v.cnt/mx)*14),sz=r*2;
-    var icon=L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>26?10:8)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'55;cursor:pointer;">'+v.cnt+'</div>',iconSize:[sz,sz],iconAnchor:[r,r]});
+    var c=gc(v.cnt),r=7+Math.round((v.cnt/mx)*13),sz=r*2;
+    var icon=L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>22?9:7)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'44;cursor:pointer;">'+v.cnt+'</div>',iconSize:[sz,sz],iconAnchor:[r,r]});
     var m=L.marker([v.lat,v.lng],{icon:icon}).addTo(map);
-    m.on('click',function(){openPanel(v);});
-    allMarkers.push({marker:m,village:v});
+    m.on('click',function(){openP(v);});
+    allMk.push({m:m,v:v});
   });
   map.setView(td.center,td.zoom);
-  updateNear();
-  renderTable();
+  updNear();
+  renderTbl();
 }
 
-function openPanel(v){
+/* ── HDFC LAYER ── */
+function toggleHDFC(){
+  hdfcOn=!hdfcOn;
+  var btn=document.getElementById('hdfc-toggle');
+  btn.textContent='\uD83C\uDFE6 HDFC '+(hdfcOn?'ON':'OFF');
+  btn.className=hdfcOn?'on':'';
+  if(hdfcOn){
+    HDFC.forEach(function(b){
+      var icon=L.divIcon({className:'',html:'<div style="width:28px;height:28px;background:#1565c0;border:2px solid #64b5f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 8px #1976d2aa;">&#127974;</div>',iconSize:[28,28],iconAnchor:[14,14]});
+      var m=L.marker([b.lat,b.lng],{icon:icon}).addTo(map);
+      m.bindPopup('<div style="padding:8px 10px;min-width:160px"><div style="font-weight:600;font-size:13px;color:#e2f0ff">'+b.n+'</div><div style="font-size:11px;color:#6b9ab8;margin-top:3px">'+b.addr+'</div></div>',{className:'',closeButton:true});
+      hdfcMk.push(m);
+    });
+  } else {
+    hdfcMk.forEach(function(m){map.removeLayer(m);});
+    hdfcMk=[];
+  }
+}
+
+/* ── PANEL ── */
+function openP(v){
   selV=v;
   var c=gc(v.cnt);
-  document.getElementById('pv-name').textContent=v.n;
-  document.getElementById('pv-meta').textContent='Code: '+v.c+' · '+DATA[curTaluka].label+' Taluka, Surat';
-  document.getElementById('pv-count').textContent=v.cnt;
-  document.getElementById('pv-count').style.color=c;
-  var b=document.getElementById('pv-badge');
+  document.getElementById('pv-nm').textContent=v.n;
+  document.getElementById('pv-mt').textContent='Code: '+v.c+' · '+DATA[curTK].label+', '+DATA[curDist].label;
+  document.getElementById('pv-ct').textContent=v.cnt;
+  document.getElementById('pv-ct').style.color=c;
+  var b=document.getElementById('pv-bg');
   b.textContent=tier(v.cnt);b.style.background=c+'22';b.style.color=c;b.style.borderColor=c+'55';
-  document.getElementById('pv-bar-fill').style.width=Math.round((v.cnt/v._mx)*100)+'%';
-  document.getElementById('pv-bar-fill').style.background=c;
-  document.getElementById('pv-dist').textContent=userLat!==null?'📍 '+fd(hav(userLat,userLng,v.lat,v.lng))+' from you':'📍 Tap GPS button to see distance';
-  var has=hasPDF(curTaluka,v.n);
-  var vb=document.getElementById('btn-view-panel'),db=document.getElementById('btn-dl-panel');
-  if(has){vb.className='btn btn-view';vb.textContent='👁 View PDF';db.className='btn btn-dl';db.textContent='⬇ Download';}
-  else{vb.className='btn btn-na';vb.textContent='PDF soon';db.className='btn btn-na';db.textContent='PDF soon';}
+  document.getElementById('pv-bf').style.width=Math.round((v.cnt/v._mx)*100)+'%';
+  document.getElementById('pv-bf').style.background=c;
+  document.getElementById('pv-ds').textContent=userLat!==null?'📍 '+fd(hav(userLat,userLng,v.lat,v.lng))+' from you':'📍 Tap GPS to see distance';
+  var has=hasPDF(curTK,v.n);
+  document.getElementById('b-vw').className='btn '+(has?'btn-vw':'btn-na');
+  document.getElementById('b-vw').textContent=has?'👁 View PDF':'PDF soon';
+  document.getElementById('b-dl').className='btn '+(has?'btn-dl':'btn-na');
+  document.getElementById('b-dl').textContent=has?'⬇ Download':'PDF soon';
   document.getElementById('panel').classList.add('open');
 }
-function closePanel(){document.getElementById('panel').classList.remove('open');selV=null;}
-function navigateTo(){if(!selV)return;window.open('https://www.google.com/maps/dir/?api=1&destination='+selV.lat+','+selV.lng+'&travelmode=driving','_blank');}
-function viewPDF(){if(!selV||!hasPDF(curTaluka,selV.n))return;window.open(pdfURL(curTaluka,selV.n),'_blank');}
+function closeP(){document.getElementById('panel').classList.remove('open');selV=null;}
+function navTo(){if(!selV)return;window.open('https://www.google.com/maps/dir/?api=1&destination='+selV.lat+','+selV.lng+'&travelmode=driving','_blank');}
+function vwPDF(){if(!selV||!hasPDF(curTK,selV.n))return;window.open(pdfURL(curTK,selV.n),'_blank');}
 function dlPDF(){
-  if(!selV||!hasPDF(curTaluka,selV.n))return;
-  var url=pdfURL(curTaluka,selV.n),name=selV.n;
-  fetch(url).then(function(r){return r.blob();}).then(function(blob){
-    var a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=name+'.pdf';
+  if(!selV||!hasPDF(curTK,selV.n))return;
+  var url=pdfURL(curTK,selV.n),nm=selV.n;
+  fetch(url).then(function(r){return r.blob();}).then(function(bl){
+    var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=nm+'.pdf';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }).catch(function(){window.open(url,'_blank');});
 }
 
-function setFb(id){['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(x){document.getElementById(x).classList.remove('active');});document.getElementById(id).classList.add('active');}
-function filterMap(t){setFb({all:'fb-all',high:'fb-high',medium:'fb-med',low:'fb-low'}[t]||'fb-all');allMarkers.forEach(function(o){var s=t==='all'||(t==='high'&&o.village.cnt>=150)||(t==='medium'&&o.village.cnt>=75&&o.village.cnt<150)||(t==='low'&&o.village.cnt<75);s?(!map.hasLayer(o.marker)&&o.marker.addTo(map)):(map.hasLayer(o.marker)&&map.removeLayer(o.marker));});}
-function sortByNearest(){if(userLat===null){alert('Tap the GPS button first');return;}setFb('fb-near');allMarkers.forEach(function(o){if(!map.hasLayer(o.marker))o.marker.addTo(map);});var s=DATA[curTaluka].villages.slice().sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});map.setView([s[0].lat,s[0].lng],14);openPanel(s[0]);}
+/* ── FILTERS ── */
+function setFb(id){['fb-all','fb-hi','fb-md','fb-lo','fb-nr'].forEach(function(x){document.getElementById(x).classList.remove('active');});document.getElementById(id).classList.add('active');}
+function fMap(t){setFb({all:'fb-all',high:'fb-hi',mid:'fb-md',low:'fb-lo'}[t]||'fb-all');allMk.forEach(function(o){var s=t==='all'||(t==='high'&&o.v.cnt>=150)||(t==='mid'&&o.v.cnt>=75&&o.v.cnt<150)||(t==='low'&&o.v.cnt<75);s?(!map.hasLayer(o.m)&&o.m.addTo(map)):(map.hasLayer(o.m)&&map.removeLayer(o.m));});}
+function nearSort(){if(userLat===null){alert('Tap GPS button first');return;}setFb('fb-nr');allMk.forEach(function(o){if(!map.hasLayer(o.m))o.m.addTo(map);});var s=DATA[curTK].v.slice().sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});map.setView([s[0].lat,s[0].lng],14);openP(s[0]);}
 
+/* ── GPS ── */
 function setPill(st,txt){var p=document.getElementById('gps-pill');p.className='';p.id='gps-pill';if(st==='on')p.classList.add('on');if(st==='err')p.classList.add('err');p.textContent=txt;}
 function onPos(pos){
   userLat=pos.coords.latitude;userLng=pos.coords.longitude;
@@ -587,84 +390,86 @@ function onPos(pos){
   if(gpsM){map.removeLayer(gpsM);map.removeLayer(gpsC);}
   gpsC=L.circle([userLat,userLng],{radius:pos.coords.accuracy,color:'#1976d2',fillColor:'#1976d2',fillOpacity:0.1,weight:1}).addTo(map);
   gpsM=L.marker([userLat,userLng],{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#1976d2;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(25,118,210,.9);"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:1000}).addTo(map);
-  updateNear();
-  if(selV)openPanel(selV);
+  updNear();
+  if(selV)openP(selV);
 }
 function onErr(e){setPill('err',e.code===1?'⚠ Blocked':'⚠ GPS error');}
-function requestGPS(){
+function reqGPS(){
   if(!navigator.geolocation){alert('Geolocation not supported');return;}
   setPill('','⟳ Locating...');
   navigator.geolocation.getCurrentPosition(function(pos){
     onPos(pos);map.setView([pos.coords.latitude,pos.coords.longitude],13);
-    if(!gpsWatching){gpsWatching=true;navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000});}
+    if(!gpsW){gpsW=true;navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000});}
   },onErr,{enableHighAccuracy:true,timeout:20000});
 }
-function updateNear(){
+function updNear(){
   if(userLat===null)return;
-  var s=DATA[curTaluka].villages.slice().sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});
-  document.getElementById('s-near').textContent=s[0].n+' ('+hav(userLat,userLng,s[0].lat,s[0].lng).toFixed(1)+'km)';
+  var s=DATA[curTK].v.slice().sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});
+  document.getElementById('s-nr').textContent=s[0].n+' ('+hav(userLat,userLng,s[0].lat,s[0].lng).toFixed(1)+'km)';
 }
 
+/* ── TABS ── */
 function switchTab(t){
   document.getElementById('tab-map').classList.toggle('active',t==='map');
   document.getElementById('tab-tbl').classList.toggle('active',t==='table');
   document.getElementById('map-view').style.display=t==='map'?'flex':'none';
-  document.getElementById('table-view').style.display=t==='table'?'flex':'none';
+  document.getElementById('tbl-view').style.display=t==='table'?'flex':'none';
   if(t==='map')map.invalidateSize();
-  if(t==='table')renderTable();
+  if(t==='table')renderTbl();
 }
 
+/* ── TABLE ── */
 function setSort(s){
   if(s==='dist'&&userLat===null){alert('Tap GPS button first');return;}
-  tblSort=s;
-  ['ts-count','ts-name','ts-dist'].forEach(function(x){document.getElementById(x).classList.remove('active');});
-  document.getElementById('ts-'+s).classList.add('active');
-  renderTable();
+  tSort=s;
+  ['ts-c','ts-n','ts-d'].forEach(function(x){document.getElementById(x).classList.remove('active');});
+  document.getElementById('ts-'+s.charAt(0)).classList.add('active');
+  renderTbl();
 }
-
-function renderTable(){
-  var q=(document.getElementById('tbl-search').value||'').toLowerCase().trim();
-  var vs=DATA[curTaluka].villages.filter(function(v){return !q||v.n.toLowerCase().indexOf(q)>=0;});
-  if(tblSort==='count')vs.sort(function(a,b){return b.cnt-a.cnt;});
-  else if(tblSort==='name')vs.sort(function(a,b){return a.n.localeCompare(b.n);});
-  else if(tblSort==='dist'&&userLat!==null)vs.sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});
-  var mx=DATA[curTaluka].villages.reduce(function(m,v){return Math.max(m,v.cnt);},1);
+function renderTbl(){
+  var q=(document.getElementById('tbl-s').value||'').toLowerCase().trim();
+  var vs=DATA[curTK].v.filter(function(v){return !q||v.n.toLowerCase().indexOf(q)>=0;});
+  if(tSort==='count')vs.sort(function(a,b){return b.cnt-a.cnt;});
+  else if(tSort==='name')vs.sort(function(a,b){return a.n.localeCompare(b.n);});
+  else if(tSort==='dist'&&userLat!==null)vs.sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});
+  var mx=DATA[curTK].v.reduce(function(m,v){return Math.max(m,v.cnt);},1);
   var html='';
   vs.forEach(function(v,i){
-    var c=gc(v.cnt),dStr=userLat!==null?fd(hav(userLat,userLng,v.lat,v.lng)):'—',bw=Math.round((v.cnt/mx)*100),has=hasPDF(curTaluka,v.n);
-    html+='<div class="tr" onclick="onRowTap(\''+v.c+'\')">'
-      +'<span class="tr-rank">'+(i+1)+'</span>'
-      +'<span class="tr-dot" style="background:'+c+'"></span>'
-      +'<div class="tr-body"><div class="tr-name">'+v.n+'</div><div class="tr-sub">'+v.c+'</div>'
-      +'<div class="tr-bb"><div class="tr-bf" style="width:'+bw+'%;background:'+c+'"></div></div></div>'
-      +'<div class="tr-right"><div class="tr-count" style="color:'+c+'">'+v.cnt+'</div><div class="tr-dist">'+dStr+'</div></div>'
-      +'<div class="tr-acts">'
-      +'<button class="tr-go" onclick="event.stopPropagation();goNav('+v.lat+','+v.lng+')">Go</button>'
-      +(has?'<button class="tr-view" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.n)+'\',\'_blank\')">View</button>':'')
-      +(has?'<button class="tr-dl" onclick="event.stopPropagation();dlFile(\''+pdfURL(curTaluka,v.n)+'\',\''+v.n+'\')">DL</button>':'<button class="tr-na" disabled>PDF</button>')
+    var c=gc(v.cnt),dStr=userLat!==null?fd(hav(userLat,userLng,v.lat,v.lng)):'—',bw=Math.round((v.cnt/mx)*100),has=hasPDF(curTK,v.n);
+    html+='<div class="tr" onclick="rowTap(\''+v.c+'\')">'
+      +'<span class="trk">'+(i+1)+'</span>'
+      +'<span class="trd" style="background:'+c+'"></span>'
+      +'<div class="trb"><div class="trn">'+v.n+'</div><div class="trs">'+v.c+'</div>'
+      +'<div class="trbb"><div class="trbf" style="width:'+bw+'%;background:'+c+'"></div></div></div>'
+      +'<div class="trr"><div class="trc" style="color:'+c+'">'+v.cnt+'</div><div class="trdst">'+dStr+'</div></div>'
+      +'<div class="tra">'
+      +'<button class="tgo" onclick="event.stopPropagation();goN('+v.lat+','+v.lng+')">Go</button>'
+      +(has?'<button class="tvw" onclick="event.stopPropagation();window.open(\''+pdfURL(curTK,v.n)+'\',\'_blank\')">View</button>':'')
+      +(has?'<button class="tdl" onclick="event.stopPropagation();dlF(\''+pdfURL(curTK,v.n)+'\',\''+v.n+'\')">DL</button>':'<button class="tna" disabled>PDF</button>')
       +'</div></div>';
   });
   if(!html)html='<p style="text-align:center;color:#1a3050;padding:30px 0;font-size:13px;">No villages found</p>';
-  document.getElementById('tbl-wrap').innerHTML=html;
+  document.getElementById('tw').innerHTML=html;
 }
-
-function onRowTap(code){
-  var v=DATA[curTaluka].villages.find(function(x){return x.c===code;});
+function rowTap(code){
+  var v=DATA[curTK].v.find(function(x){return x.c===code;});
   if(!v)return;
-  v._mx=DATA[curTaluka].villages.reduce(function(m,x){return Math.max(m,x.cnt);},1);
-  switchTab('map');map.setView([v.lat,v.lng],14);openPanel(v);
+  v._mx=DATA[curTK].v.reduce(function(m,x){return Math.max(m,x.cnt);},1);
+  switchTab('map');map.setView([v.lat,v.lng],14);openP(v);
 }
-function goNav(lat,lng){window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank');}
-function dlFile(url,name){
-  fetch(url).then(function(r){return r.blob();}).then(function(blob){
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.pdf';
+function goN(lat,lng){window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank');}
+function dlF(url,nm){
+  fetch(url).then(function(r){return r.blob();}).then(function(bl){
+    var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=nm+'.pdf';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }).catch(function(){window.open(url,'_blank');});
 }
 
-map.on('click',closePanel);
-loadTaluka();
+/* INIT */
+map.on('click',closeP);
+buildTKBar();
+loadTK();
 </script>
 </body>
 </html>
