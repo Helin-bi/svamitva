@@ -9,7 +9,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-#header{background:#06101a;padding:8px 14px 6px;border-bottom:1px solid #1a2d40;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#header{background:#06101a;padding:9px 14px 7px;border-bottom:1px solid #1a2d40;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
 #header h1{font-size:13px;font-weight:700;color:#e2f0ff;white-space:nowrap}
 #header p{font-size:10px;color:#4a7090;margin-top:1px}
 #gps-pill{font-size:11px;padding:5px 11px;border-radius:20px;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;flex-shrink:0;white-space:nowrap}
@@ -18,7 +18,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
 #dist-bar{display:flex;gap:6px;padding:6px 14px;background:#04090f;border-bottom:1px solid #1a2d40;flex-shrink:0}
 .dk-btn{padding:5px 16px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap}
 .dk-btn.active{background:#0d2a3a;border-color:#0d7a9a;color:#29b6d8}
-#taluka-bar{display:flex;gap:6px;padding:6px 14px;background:#06101a;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#taluka-bar{display:flex;gap:6px;padding:7px 14px;background:#06101a;border-bottom:1px solid #1a2d40;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
 #taluka-bar::-webkit-scrollbar{display:none}
 .tk-btn{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #1a2d40;background:#112030;color:#6b9ab8;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .tk-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
@@ -26,6 +26,15 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
 #statsbar::-webkit-scrollbar{display:none}
 .stat{background:#112030;border-radius:7px;padding:4px 9px;white-space:nowrap;flex-shrink:0;font-size:10px;color:#4a7090}
 .stat strong{display:block;font-size:14px;font-weight:700;color:#e2f0ff;line-height:1.2}
+/* Init overlay — shown while loading census GeoJSON on first run */
+#init-overlay{position:fixed;inset:0;background:#06101a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#init-overlay.done{display:none}
+#init-logo{font-size:32px}
+#init-title{font-size:15px;font-weight:700;color:#e2f0ff}
+#init-msg{font-size:12px;color:#4a7090;text-align:center;padding:0 32px}
+#init-bar-wrap{width:240px;height:5px;background:#112030;border-radius:3px;overflow:hidden}
+#init-bar{height:100%;background:#1976d2;width:0%;border-radius:3px;transition:width .4s}
+#init-skip{margin-top:8px;font-size:11px;color:#1976d2;cursor:pointer;text-decoration:underline}
 #tabbar{display:flex;background:#06101a;border-bottom:1px solid #1a2d40;flex-shrink:0}
 .tab{flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:#4a7090;cursor:pointer;border-bottom:2px solid transparent}
 .tab.active{color:#64b5f6;border-bottom-color:#1976d2}
@@ -35,15 +44,13 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
 .f-btn.active{background:#1565c0;border-color:#1976d2;color:#fff}
 #map-view{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 #map{flex:1;z-index:1;min-height:0}
-/* Invert OSM tiles to dark */
-.leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.45)}
 #legend{position:absolute;bottom:86px;right:10px;background:rgba(6,16,26,.93);border:1px solid #1a2d40;border-radius:10px;padding:7px 10px;z-index:999;font-size:10px;color:#6b9ab8}
 #legend div{display:flex;align-items:center;gap:5px;margin-bottom:3px}
 #legend div:last-child{margin-bottom:0}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 #gpsBtn{position:absolute;bottom:22px;right:10px;background:#1565c0;border:none;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(21,101,192,.5);cursor:pointer;z-index:999;color:#fff;font-size:19px}
 #gpsBtn:active{transform:scale(.92)}
-#panel{position:absolute;bottom:-400px;left:0;right:0;background:#06101a;border-top:1px solid #1a2d40;border-radius:18px 18px 0 0;padding:14px;z-index:1000;transition:bottom .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.7)}
+#panel{position:absolute;bottom:-420px;left:0;right:0;background:#06101a;border-top:1px solid #1a2d40;border-radius:18px 18px 0 0;padding:14px;z-index:1000;transition:bottom .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.7)}
 #panel.open{bottom:0}
 #ph{width:34px;height:4px;background:#1a2d40;border-radius:2px;margin:0 auto 12px}
 #pv-name{font-size:16px;font-weight:700;color:#e2f0ff}
@@ -92,10 +99,20 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
 .leaflet-popup-close-button{color:#4a7090!important;top:6px!important;right:8px!important}
 .leaflet-control-zoom{border:1px solid #1a2d40!important;border-radius:8px!important;overflow:hidden}
 .leaflet-control-zoom a{background:#112030!important;color:#6b9ab8!important;border-bottom:1px solid #1a2d40!important}
-.leaflet-control-attribution{background:rgba(6,16,26,.5)!important;color:#4a7090!important;font-size:8px!important}
+.leaflet-control-attribution{background:rgba(6,16,26,.5)!important;color:#162030!important;font-size:8px!important}
 </style>
 </head>
 <body>
+
+<!-- First-run overlay: shown only when census coords are being downloaded -->
+<div id="init-overlay">
+  <div id="init-logo">&#128205;</div>
+  <div id="init-title">Setting Up SVAMITVA</div>
+  <div id="init-msg">Downloading accurate village coordinates from Census of India data.<br>This happens <strong>once only</strong> and takes ~30 seconds.</div>
+  <div id="init-bar-wrap"><div id="init-bar"></div></div>
+  <div id="init-skip" onclick="skipInit()">Skip — use approximate locations</div>
+</div>
+
 <div id="header">
   <div><h1>&#128205; SVAMITVA &#8212; South Gujarat</h1><p id="hdr-sub">Select a district &amp; taluka</p></div>
   <div id="gps-pill" onclick="requestGPS()">&#9711; Get Location</div>
@@ -159,549 +176,551 @@ body{font-family:'Segoe UI',sans-serif;background:#0a1520;color:#fff;height:100d
     <button class="btn btn-close" onclick="closePanel()">&#10005;</button>
   </div>
 </div>
-<script>
-var GITHUB='https://helin-bi.github.io/svamitva/pdfs/';
 
-// ─── Coordinate helper: bounding-box hash for estimated positions ───────────
-function vc(c,lat0,lat1,lng0,lng1){
-  var n=parseInt(c);
-  var h1=((n*97+31)%1000)/1000;
-  var h2=((n*137+59)%1000)/1000;
-  return{lat:parseFloat((lat0+h1*(lat1-lat0)).toFixed(4)),lng:parseFloat((lng0+h2*(lng1-lng0)).toFixed(4))};
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+var GITHUB      = 'https://helin-bi.github.io/svamitva/pdfs/';
+var GEOJSON_URL = 'https://github.com/datameet/indian_village_boundaries/raw/master/gj/gj.geojson';
+var COORD_KEY   = 'svamitva_coords_v2';   // localStorage key for census coordinates
+var PDF_KEY     = 'svamitva_pdfs_v2';     // localStorage key for PDF availability cache
+var PDF_TTL     = 24*60*60*1000;          // Re-check PDF availability every 24 hours
+
+// ─── Load cached coords ───────────────────────────────────────────────────────
+var coordCache = {};
+try { coordCache = JSON.parse(localStorage.getItem(COORD_KEY)||'{}'); } catch(e){}
+
+// ─── PDF cache ────────────────────────────────────────────────────────────────
+var pdfCache = {};
+try { pdfCache = JSON.parse(localStorage.getItem(PDF_KEY)||'{}'); } catch(e){}
+function savePdfCache(){ try{ localStorage.setItem(PDF_KEY,JSON.stringify(pdfCache)); }catch(e){} }
+function pdfCacheKey(t,n){ return t+'::'+n; }
+// Returns: true=has PDF, false=no PDF, null=unknown
+function getCachedPdf(t,n){
+  var k=pdfCacheKey(t,n), e=pdfCache[k];
+  if(!e) return null;
+  if(Date.now()-e.ts > PDF_TTL){ delete pdfCache[k]; return null; }
+  return e.has;
+}
+function setCachedPdf(t,n,has){ pdfCache[pdfCacheKey(t,n)]={has:has,ts:Date.now()}; savePdfCache(); }
+
+// Check if a PDF exists via HEAD request; calls cb(bool)
+function checkPdf(t,n,cb){
+  var cached = getCachedPdf(t,n);
+  if(cached !== null){ cb(cached); return; }
+  fetch(pdfURL(t,n),{method:'HEAD'})
+    .then(function(r){ var has=r.ok; setCachedPdf(t,n,has); cb(has); })
+    .catch(function(){ setCachedPdf(t,n,false); cb(false); });
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-var DATA={
+// ─── Village data ─────────────────────────────────────────────────────────────
+// Format: [name, censusCode, propertyCount]
+// Coordinates: exact for Bardoli/Chorasi/Kamrej/Olpad/Palsana/Umarpada (from original file)
+//              census GeoJSON centroid for rest (loaded on first run, cached after)
+var RAW = {
+  // ── SURAT ──
+  bardoli:{ label:'Bardoli', district:'surat', center:[21.12,73.15], zoom:11,
+    v:[['Varad','524283',305],['Samthan','524279',209],['Uva','524314',206],
+       ['Kantali','524280',203],['Nizar','524332',188],['Singod','524277',180],
+       ['Umrakh','524286',161],['Vadoli','524339',154],['Uchharel','524269',135],
+       ['Sejvad','524326',134],['Bhuvasan','524336',131],['Goji','524321',127],
+       ['Karachaka','524315',119],['Ninat','524330',119],['Kharvasa','524285',116],
+       ['Palsod','524292',108],['Astan','524287',109],['Bharampor','524266',106],
+       ['Dhamdod Lumbha','524302',103],['Tarbhon','524343',103],['Bhamaiya','524268',100],
+       ['Bamni','524278',90],['Nasura','524275',82],['Movachhi','524264',80],
+       ['Sankri','524301',80],['Haripura','524270',79],['Isroli','524319',79],
+       ['Masad','524272',79],['Isanpor','524284',77],['Nadida','524304',84],
+       ['Vadhvaniya','524276',69],['Vadhava','524308',53],['Rajpura Lumbha','524289',44],
+       ['Bamroli','524322',39],['Junvani','524295',36],['Ruwa','524282',33],
+       ['Vaghech Sarbhon','524341',33],['Pardi Kadod','524281',26],['Gotasa','524323',13],
+       ['Manekpor','524313',12],['Allu','524327',10],['Kuvadiya','524344',9],
+       ['Vankaner','524328',3],['Pardi Valod','524333',3],['Mangrolia','524300',4],
+       ['Pardi Vagha','524342',1],['Moti Falod','524265',1],['Akoti','524293',1]]},
 
-  // ╔══════════════════════════════════════════════════════╗
-  // ║  SURAT DISTRICT                                      ║
-  // ╚══════════════════════════════════════════════════════╝
+  chorasi:{ label:'Chorasi', district:'surat', center:[21.10,72.93], zoom:11,
+    v:[['Bonand','524193',203],['Kharvasa','524192',178],['Ravla Alias Vaktana','524194',161],
+       ['Bhatia','524195',77],['Khambhasla','524188',53],['Samrod','524202',46],
+       ['Mohni','524185',36],['Kachholi','524201',4],['Timbarva','524186',3],['Goja','524187',1]]},
 
-  bardoli:{label:'Bardoli',district:'surat',center:[21.12,73.15],zoom:11,pdfs:['Akoti','Allu','Astan','Bamni','Bamroli','Bhamaiya','Bharampor'],
-    villages:[
-      {n:'Varad',c:'524283',lat:21.1704,lng:73.1320,cnt:305},
-      {n:'Samthan',c:'524279',lat:21.1908,lng:73.1943,cnt:209},
-      {n:'Uva',c:'524314',lat:21.1255,lng:73.1122,cnt:206},
-      {n:'Kantali',c:'524280',lat:21.1925,lng:73.1792,cnt:203},
-      {n:'Nizar',c:'524332',lat:21.0582,lng:73.1217,cnt:188},
-      {n:'Singod',c:'524277',lat:21.1972,lng:73.2223,cnt:180},
-      {n:'Umrakh',c:'524286',lat:21.1439,lng:73.0815,cnt:161},
-      {n:'Vadoli',c:'524339',lat:21.0280,lng:73.0804,cnt:154},
-      {n:'Uchharel',c:'524269',lat:21.2110,lng:73.1910,cnt:135},
-      {n:'Sejvad',c:'524326',lat:21.0935,lng:73.1999,cnt:134},
-      {n:'Bhuvasan',c:'524336',lat:21.0449,lng:73.0693,cnt:131},
-      {n:'Goji',c:'524321',lat:21.0698,lng:73.1084,cnt:127},
-      {n:'Karachaka',c:'524315',lat:21.1383,lng:73.1932,cnt:119},
-      {n:'Ninat',c:'524330',lat:21.0614,lng:73.0652,cnt:119},
-      {n:'Kharvasa',c:'524285',lat:21.1586,lng:73.1158,cnt:116},
-      {n:'Palsod',c:'524292',lat:21.1650,lng:73.1600,cnt:108},
-      {n:'Astan',c:'524287',lat:21.1442,lng:73.1158,cnt:109},
-      {n:'Bharampor',c:'524266',lat:21.1941,lng:73.1378,cnt:106},
-      {n:'Dhamdod Lumbha',c:'524302',lat:21.1395,lng:73.1368,cnt:103},
-      {n:'Tarbhon',c:'524343',lat:21.0201,lng:73.0597,cnt:103},
-      {n:'Bhamaiya',c:'524268',lat:21.2098,lng:73.1792,cnt:100},
-      {n:'Bamni',c:'524278',lat:21.1897,lng:73.2087,cnt:90},
-      {n:'Nasura',c:'524275',lat:21.2073,lng:73.2504,cnt:82},
-      {n:'Movachhi',c:'524264',lat:21.1795,lng:73.1084,cnt:80},
-      {n:'Sankri',c:'524301',lat:21.1566,lng:73.1674,cnt:80},
-      {n:'Haripura',c:'524270',lat:21.2104,lng:73.2065,cnt:79},
-      {n:'Isanpor',c:'524284',lat:21.1600,lng:73.1200,cnt:77},
-      {n:'Isroli',c:'524319',lat:21.0996,lng:73.1275,cnt:79},
-      {n:'Masad',c:'524272',lat:21.2142,lng:73.2434,cnt:79},
-      {n:'Nadida',c:'524304',lat:21.1084,lng:73.0874,cnt:84},
-      {n:'Vadhvaniya',c:'524276',lat:21.2029,lng:73.2463,cnt:69},
-      {n:'Vadhava',c:'524308',lat:21.1284,lng:73.1733,cnt:53},
-      {n:'Rajpura Lumbha',c:'524289',lat:21.1504,lng:73.1482,cnt:44},
-      {n:'Bamroli',c:'524322',lat:21.0895,lng:73.1320,cnt:39},
-      {n:'Junvani',c:'524295',lat:21.1806,lng:73.2323,cnt:36},
-      {n:'Ruwa',c:'524282',lat:21.1750,lng:73.1350,cnt:33},
-      {n:'Vaghech Sarbhon',c:'524341',lat:21.0200,lng:73.0420,cnt:33},
-      {n:'Pardi Kadod',c:'524281',lat:21.1913,lng:73.1674,cnt:26},
-      {n:'Gotasa',c:'524323',lat:21.0894,lng:73.1453,cnt:13},
-      {n:'Manekpor',c:'524313',lat:21.0971,lng:73.2353,cnt:12},
-      {n:'Allu',c:'524327',lat:21.0667,lng:73.1910,cnt:10},
-      {n:'Kuvadiya',c:'524344',lat:21.0003,lng:73.0494,cnt:9},
-      {n:'Vankaner',c:'524328',lat:21.0764,lng:73.1733,cnt:3},
-      {n:'Pardi Valod',c:'524333',lat:21.0533,lng:73.1733,cnt:3},
-      {n:'Mangrolia',c:'524300',lat:21.1571,lng:73.1932,cnt:4},
-      {n:'Pardi Vagha',c:'524342',lat:21.0195,lng:73.0538,cnt:1},
-      {n:'Moti Falod',c:'524265',lat:21.2076,lng:73.1398,cnt:1},
-      {n:'Akoti',c:'524293',lat:21.1708,lng:73.1858,cnt:1}
-    ]},
+  kamrej:{ label:'Kamrej', district:'surat', center:[21.26,73.01], zoom:11,
+    v:[['Ghala','524100',540],['Jokha','524134',395],['Umbhel','524159',388],
+       ['Sevni','524136',348],['Antroli','524096',258],['Digas','524123',300],
+       ['Dhoran Paradi','524102',297],['Orna','524126',225],['Ladvi','524146',228],
+       ['Karjan','524101',214],['Asta','524135',206],['Mankna','524148',194],
+       ['Kosamadi','524142',187],['Morthana','524141',168],['Koli Bharthana','524121',167],
+       ['Valan','524149',154],['Kosmada','524143',151],['Parab','524158',150],
+       ['Timba','524124',136],['Machhi','524108',143],['Shekhpur','524094',116],
+       ['Dungra','524111',117],['Khanpur','524153',128],['Choryasi','524105',129],
+       ['Chikhli','524161',102],['Nagod','524155',100],['Netrang','524122',98],
+       ['Segva','524140',94],['Bhairav','524106',86],['Navi Paradi','524098',79],
+       ['Rundhvada','524156',74],['Jior','524110',36],['Delad','524137',118],
+       ['Pali','524157',43],['Tharoli','524097',43],['Simadi','524133',33],
+       ['Akhakhol','524099',71],['Mirapur','524152',38],['Delad','524112',56],
+       ['Dharutha','524128',50],['Dhatva','524109',25],['Dethli','524138',12],
+       ['Dungar','524154',19],['Alura','524150',20],['Vansdarundhi','524151',14],
+       ['Valthan','524147',2],['Chhedchha','524144',11],['Nansad','524120',1],
+       ['Ghaludi','524095',1],['Oviyan','524145',1],['Kholeshwar','524107',1]]},
 
-  chorasi:{label:'Chorasi',district:'surat',center:[21.10,72.93],zoom:11,pdfs:[],
-    villages:[
-      {n:'Bonand',c:'524193',lat:21.1120,lng:72.9151,cnt:203},
-      {n:'Kharvasa',c:'524192',lat:21.1214,lng:72.9010,cnt:178},
-      {n:'Ravla Alias Vaktana',c:'524194',lat:21.1002,lng:72.9248,cnt:161},
-      {n:'Bhatia',c:'524195',lat:21.0834,lng:72.9379,cnt:77},
-      {n:'Khambhasla',c:'524188',lat:21.1287,lng:72.9123,cnt:53},
-      {n:'Samrod',c:'524202',lat:21.0684,lng:72.9427,cnt:46},
-      {n:'Mohni',c:'524185',lat:21.1385,lng:72.9289,cnt:36},
-      {n:'Kachholi',c:'524201',lat:21.0633,lng:72.9354,cnt:4},
-      {n:'Timbarva',c:'524186',lat:21.0850,lng:72.9300,cnt:3},
-      {n:'Goja',c:'524187',lat:21.1263,lng:72.9176,cnt:1}
-    ]},
+  mahuva:{ label:'Mahuva', district:'surat', center:[21.065,73.36], zoom:11,
+    v:[['Amchak','524359',25],['Andhatri','524365',1],['Bamaniya','524391',24],
+       ['Bartad','524380',91],['Bhoriya','524402',59],['Dhamkhadi','524404',12],
+       ['Dholikui','524377',177],['Dhundhesa','524354',1],['Dungari','524367',66],
+       ['Fulvadi','524378',4],['Ghadoi','524388',33],['Gunasvel','524397',195],
+       ['Haladva','524407',52],['Jhervavra','524390',206],['Kachhal','524369',43],
+       ['Kadhaiya','524382',18],['Kadiya','524370',81],['Kani','524356',200],
+       ['Karcheliya','524381',378],['Kavitha','524374',30],['Khandal','524371',24],
+       ['Lasanpor','524411',41],['Mahuvariya','524406',32],['Miyapur','524362',16],
+       ['Nihali','524376',2],['Ondach','524360',283],['Puna','524395',55],
+       ['Samba','524401',45],['Sevasan','524375',1],['Vadiya','524366',1],
+       ['Valvada','524403',3],['Vank','524392',109],['Vasrai','524396',14]]},
 
-  kamrej:{label:'Kamrej',district:'surat',center:[21.26,73.01],zoom:11,pdfs:[],
-    villages:(function(){
-      // Exact coords for first 17 (from source), estimated for rest within bbox
-      var exact=[
-        {n:'Ghala',c:'524100',lat:21.2976,lng:73.0361,cnt:540},
-        {n:'Jokha',c:'524134',lat:21.2391,lng:73.0140,cnt:395},
-        {n:'Sevni',c:'524136',lat:21.2233,lng:73.0715,cnt:348},
-        {n:'Umbhel',c:'524159',lat:21.1896,lng:72.9682,cnt:388},
-        {n:'Antroli',c:'524096',lat:21.3324,lng:72.9402,cnt:258},
-        {n:'Dhoran Paradi',c:'524102',lat:21.3134,lng:72.9645,cnt:297},
-        {n:'Digas',c:'524123',lat:21.2653,lng:73.0516,cnt:300},
-        {n:'Orna',c:'524126',lat:21.2503,lng:73.0605,cnt:225},
-        {n:'Ladvi',c:'524146',lat:21.1948,lng:72.9557,cnt:228},
-        {n:'Karjan',c:'524101',lat:21.3071,lng:73.0088,cnt:214},
-        {n:'Mankna',c:'524148',lat:21.2091,lng:72.9833,cnt:194},
-        {n:'Kosamadi',c:'524142',lat:21.2650,lng:73.0000,cnt:187},
-        {n:'Morthana',c:'524141',lat:21.2200,lng:73.0177,cnt:168},
-        {n:'Koli Bharthana',c:'524121',lat:21.2641,lng:73.0117,cnt:167},
-        {n:'Kosmada',c:'524143',lat:21.2074,lng:72.9313,cnt:151},
-        {n:'Valan',c:'524149',lat:21.2035,lng:73.0151,cnt:154},
-        {n:'Parab',c:'524158',lat:21.1948,lng:73.0117,cnt:150}
-      ];
-      var est=[
-        ['Timba','524124',136],['Shekhpur','524094',116],['Dungra','524111',117],
-        ['Khanpur','524153',128],['Choryasi','524105',129],['Machhi','524108',143],
-        ['Nagod','524155',100],['Netrang','524122',98],['Segva','524140',94],
-        ['Bhairav','524106',86],['Kanvada', '524121',167],
-        ['Rundhvada','524156',74],['Jior','524110',36],['Delad','524137',118],
-        ['Pali','524157',43],['Tharoli','524097',43],['Simadi','524133',33],
-        ['Akhakhol','524099',71],['Mirapur','524152',38],['Chikhli','524161',102],
-        ['Dharutha','524128',50],['Dhatva','524109',25],['Delad','524112',56],
-        ['Dethli','524138',12],['Dungar','524154',19],['Alura','524150',20],
-        ['Vansdarundhi','524151',14],['Valthan','524147',2],['Chhedchha','524144',11],
-        ['Nansad','524120',1],['Ghaludi','524095',1],['Oviyan','524145',1],['Kholeshwar','524107',1],
-        ['Navi Paradi','524098',79]
-      ];
-      var out=exact.slice();
-      est.forEach(function(x){
-        var co=vc(x[1],21.18,21.35,72.91,73.09);
-        out.push({n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]});
+  mandvi:{ label:'Mandvi', district:'surat', center:[21.27,73.44], zoom:11,
+    v:[['Amba','524011',198],['Bori','524043',8],['Choramba','523955',146],
+       ['Devgadh','523970',1],['Devgiri','523966',158],['Dharampor','523948',129],
+       ['Fali','523987',2],['Gamtalav Bujrang','524054',174],['Gavachhi','524045',2],
+       ['Godavadi','524052',281],['Godsamba','524042',158],['Jamankuva Bar','524073',2],
+       ['Jhab','524012',1],['Junvan','523971',40],['Kamlapor','524048',103],
+       ['Kevdi','524029',4],['Khanjroli','524047',56],['Kharoli','524049',123],
+       ['Khod Amba','523975',18],['Madharkui','523976',148],['Munjlav','523982',137],
+       ['Nandpor','524044',93],['Naren','524019',4],['Patal','523951',5],
+       ['Patna','524016',1],['Piparia','524046',16],['Rosvad','523980',25],
+       ['Rupan','524058',1],['Tarsadabar Gam','524068',210],['Togapur','523947',84],
+       ['Tuked','523950',207],['Ushker Ramkund','523979',33],['Vadod','523984',147],
+       ['Valargadh','524023',70],['Vareth','524064',35],['Varethi','523945',74],['Varjakhan','524067',21]]},
+
+  mangrol:{ label:'Mangrol', district:'surat', center:[21.12,73.32], zoom:11,
+    v:[['Ambavadi','523849',236],['Ankdod','523799',19],['Ansodala','523855',44],
+       ['Asarma','523820',133],['Bhadkuva','523806',56],['Bhatkol','523861',95],
+       ['Bhilvada','523805',206],['Borsad','523870',122],['Charetha','523835',2],
+       ['Chhamuchhal','523864',5],['Dholikui','523839',161],['Dinod','523797',50],
+       ['Dungri','523869',235],['Gadkachh','523837',3],['Ghodbar','523879',26],
+       ['Gijram','523800',132],['Harsani','523803',179],['Jhankharda','523851',47],
+       ['Jhinora','523838',92],['Kansali','523873',21],['Kanvada','523817',85],
+       ['Kargara','523814',27],['Kathvada','523823',219],['Kevdi (Kund)','523809',88],
+       ['Khareda','523813',83],['Lavet','523811',113],['Limodara','523866',19],
+       ['Lindiad','523863',193],['Luvara','523819',5],['Molvan','523865',52],
+       ['Motifali','523812',73],['Nana Borsara','523791',84],['Nandav','523793',186],
+       ['Nandola','523841',95],['Nani Fali','523840',5],['Nogama','523854',147],
+       ['Panetha','523857',1],['Pataldevi','523842',66],['Pipodara','523862',114],
+       ['Ranakpor','523832',1],['Ratola','523871',170],['Sava','523822',106],
+       ['Shenthi','523856',1],['Siyalaj','523826',222],['Surali','523853',42],
+       ['Umelav','523868',2],['Vad','523807',69],['Vadoli','523834',163],
+       ['Valesa','523858',57],['Vansoli','523795',2],['Vasravi','523850',99],
+       ['Vastan','523852',54],['Velachha','523830',509]]},
+
+  olpad:{ label:'Olpad', district:'surat', center:[21.36,72.75], zoom:11,
+    v:[['Karanj','523686',259],['Kimamli','523700',257],['Rajnagar','934507',222],
+       ['Kadrama','523694',186],['Sondlakhara','523717',179],['Anita','523698',173],
+       ['Sithan','523734',170],['Morthan','523724',162],['Atodra','523736',153],
+       ['Achharan','523735',152],['Kanthraj','523733',146],['Bhadol','523695',130],
+       ['Asnad','523709',125],['Bolav','523699',123],['Kamroli','523688',117],
+       ['Delasa','523715',111],['Bhatgam','523720',108],['Mindhi','523711',103],
+       ['Vadoli','523696',100],['Sondamitha','523708',100],['Karamla','523746',95],
+       ['Koba','523691',93],['Pardi Koba','523692',84],['Gola','523723',75],
+       ['Obhla','523732',69],['Kunkni','523781',68],['Asnabad','523744',49],
+       ['Sarsana','523707',49],['Kachhab','523726',36],['Takarma','523706',33],
+       ['Balkas','523763',27],['Thothab','523690',18],['Dihen','523782',4],['Naghoi','523710',2]]},
+
+  palsana:{ label:'Palsana', district:'surat', center:[21.11,73.00], zoom:11,
+    v:[['Tundi','524232',232],['Antroli','524216',136],['Dhamdod','524240',149],
+       ['Erthan','524235',97],['Gangpor','524230',103],['Vadadala','524236',72],
+       ['Ghaluda','524239',51],['Jetpor','524228',45],['Vankaneda','524223',45],
+       ['Barasadi','524229',3],['Gotiya','524243',12],['Haripura','524217',5],['Niyol','524215',1]]},
+
+  umarpada:{ label:'Umarpada', district:'surat', center:[21.46,73.49], zoom:11,
+    v:[['Rudhi Gavan','523930',633],['Velavi','523888',237],['Sadadapani','523887',181],
+       ['Vadpada','523937',175],['Chimipatal','523910',149],['Sampura','523899',92],
+       ['Govat','523901',76],['Darda','523924',72],['Khodamba','523913',69],
+       ['Kadvidadra','523900',63],['Unchvan','523917',49],['Nana Sutkhadka','523905',47],
+       ['Umarjhar','523894',45],['Chandrapada','523916',36],['Charni','523886',30],
+       ['Bardipada','523929',25],['Kevdi (Sharda)','523890',19],['Umarkhadi','523893',1],
+       ['Sarda','523889',2],['Pada','523898',2],['Bilvan','523928',1]]},
+
+  // ── NAVSARI ──
+  bansda:{ label:'Bansda', district:'navsari', center:[20.73,73.37], zoom:11,
+    v:[['Kelkutch','523139',39],['Kureliya','523141',6],['Rupvel','523144',30],
+       ['Sara','523159',1],['Sindhai','523132',8],['Umarkui','523197',64],['Vandarvela','523177',29]]},
+
+  chikhli:{ label:'Chikhli', district:'navsari', center:[20.755,73.08], zoom:11,
+    v:[['Amadhara','523089',58],['Barolia','523052',18],['Donja','523068',66],
+       ['Ghekti','523075',22],['Harangam','523067',68],['Kaliyari','523087',12],
+       ['Kanbhai','523085',2],['Kangvai','523048',61],['Kharoli','523059',33],
+       ['Khudvel','523081',19],['Manekpor','523066',55],['Minkachchh','523051',37],
+       ['Ranverikhurd','523058',8],['Saravani','523083',1],['Surkhai','523061',18],
+       ['Syada','523086',40],['Talavchora','523091',89]]},
+
+  gandevi:{ label:'Gandevi', district:'navsari', center:[20.83,72.955], zoom:11,
+    v:[['Ajrai','523008',123],['Ambheta','523022',62],['Ancheli','523000',2],
+       ['Bilimora (Talodh) (Ct)','523042',8],['Deshad','523020',14],['Devdha','523025',99],
+       ['Dhakwada','523031',1],['Duwada','523005',11],['Endhal','523004',100],
+       ['Gadat','522998',2],['Gandeva','522994',43],['Ganghor','523010',12],
+       ['Ichhapor','522989',121],['Kalamtha','523029',15],['Kalvach','523021',57],
+       ['Khakhwada','523001',2],['Khapariya','522995',1],['Khaparwada','523038',3],
+       ['Kotha','523013',274],['Manekpor','522997',17],['Mohanpur','522986',48],
+       ['Nandarkha','523033',56],['Pathri','523002',74],['Pati','523023',45],
+       ['Pinjra','522990',67],['Pipaldhara','522996',41],['Rahej','523007',41],
+       ['Salej','522988',1],['Sarikhurd','523015',49],['Sonwadi','522999',1],
+       ['Vadsangal','523006',134],['Valoti','523024',151],['Vasan','523012',1]]},
+
+  jalalpore:{ label:'Jalalpore', district:'navsari', center:[20.89,72.875], zoom:11,
+    v:[['Alak','522933',62],['Alura','522948',1],['Asana','522926',68],
+       ['Bhinar','522945',339],['Borsi','522957',25],['Chokhad','522924',73],
+       ['Dalki','522939',72],['Danti','522914',237],['Delvada','522946',1],
+       ['Dipla','522943',361],['Ethan','522965',2],['Hansapor','522968',1],
+       ['Kadoli','522938',1],['Kalakachha','522927',42],['Kanera','522984',13],
+       ['Karadi','522961',69],['Karankhat','522918',247],['Karod Kothva','522977',1],
+       ['Kothamadi','522964',2],['Kuched','522931',102],['Machhad','522962',1],
+       ['Magob','522917',76],['Manekpor','522953',70],['Mangrol','522940',2],
+       ['Matwad','522960',3],['Mirjapor','522951',67],['Nadod','522920',69],
+       ['Parujan','522919',170],['Pethan','522963',67],['Sagra','522952',1],
+       ['Samapor','522959',1],['Sandalpor','522935',74],['Sarav','522978',83],
+       ['Simalgam','522949',288],['Sultanpur','522972',17],['Tankoli','522954',17],
+       ['Tavdi','522955',1],['Umbhrat','522915',296],['Vansi','522944',22],
+       ['Vedchha','522976',1],['Wada','522923',17]]},
+
+  navsarit:{ label:'Navsari', district:'navsari', center:[20.955,72.925], zoom:11,
+    v:[['Amadpor','522859',156],['Ambada','522875',112],['Amri','522858',1],
+       ['Ashtagam','522881',199],['Asundar','522844',26],['Boriach','522902',99],
+       ['Butlav','522893',48],['Dabhalai','522890',75],['Dandesar','522866',60],
+       ['Dhaman','522846',104],['Kachhol','522897',2],['Kadipor','522856',49],
+       ['Kanbad','522894',48],['Kumbhar Faliya','522892',70],['Kurel','522852',112],
+       ['Mogar','522900',339],['Moldhara','522860',153],['Nagdhara','522891',35],
+       ['Navapara','522877',18],['Onchi','522867',50],['Padgha','522855',192],
+       ['Pardi','522888',50],['Parthan','522847',92],['Pinsad','522854',50],
+       ['Puni','522907',50],['Sadlav','522880',107],['Sarai','522845',2],
+       ['Sarona','522850',50],['Sarpor','522889',72],['Shahu','522864',50],
+       ['Singod','522865',73],['Tarsadi','522861',23],['Toli','522879',5],
+       ['Ugat','522876',139],['Un','522882',53],['Vachharvad','522863',77],
+       ['Vasar','522874',1],['Vejalpor','522848',70],['Virwadi','522868',50]]},
+
+  // ── VALSAD ──
+  dharampur:{ label:'Dharampur', district:'valsad', center:[20.535,73.185], zoom:11,
+    v:[['Barumal','523354',1],['Bhensdara','523388',14],['Bildha','523366',6],
+       ['Ganva','523362',8],['Hathanbari','523342',5],['Khadki','523401',33],
+       ['Khanda','523333',18],['Kosimpada','523372',4],['Kurgam','523384',1],
+       ['Madhuri','523400',37],['Molveri','523365',9],['Pondha Jungle','523415',30],
+       ['Rajpuri Jungle','523357',13],['Rajpuri Talat','523327',1],['Sidumber','523355',1],
+       ['Tanachhiya','523339',20],['Tanki','523382',1],['Tiskari Talat','523351',1],
+       ['Tumbi','523383',1],['Ukta','523378',13],['Zariya','523380',3]]},
+
+  pardi:{ label:'Pardi', district:'valsad', center:[20.515,72.96], zoom:11,
+    v:[['Arnala','523478',50],['Barai','523481',1],['Borlai','523440',21],
+       ['Chival','523477',1],['Dashwada','523452',4],['Dhagadmal','523475',1],
+       ['Khadki','523443',7],['Kherlav','523485',8],['Lakhmapor','523458',1],
+       ['Motiwada','523444',70],['Nevri','523459',1],['Orvad (Ct)','523501',39],
+       ['Rentlav','523450',28],['Rohina','523473',1],['Samarpada','523474',14],
+       ['Saran','523465',34],['Sukhesh','523439',1],['Sukhlav','523441',16]]},
+
+  umbergaon:{ label:'Umbergaon', district:'valsad', center:[20.175,72.76], zoom:11,
+    v:[['Ahu','523668',72],['Angam','523649',11],['Borigam','523655',21],
+       ['Eklahre','523644',33],['Jamburi','523640',7],['Kalai','523637',288],
+       ['Manda','523653',12],['Nahuli','523645',16],['Pali','523641',28],
+       ['Punat','523643',4],['Saronda','523659',87],['Vankas','523666',12]]},
+
+  valsadt:{ label:'Valsad', district:'valsad', center:[20.595,72.93], zoom:11,
+    v:[['Atar','523295',3],['Atul','909101',1],['Bhadeli Desai Party','523253',1],
+       ['Bhagod','523297',50],['Bhoma Pardi','523288',4],['Bodlai','523303',20],
+       ['Chinchai','523312',35],['Dhanori','523247',46],['Dulsad','523285',1],
+       ['Fanaswada','523258',1],['Gorgam','523234',1],['Gorwada','523266',10],
+       ['Jespor','523230',1],['Khajurdi','523256',24],['Kochwada','523268',1],
+       ['Magod Dungri','523294',1],['Meh','523296',38],['Muli','523261',8],
+       ['Navera','523302',1],['Palan','523257',8],['Pitha','523270',53],
+       ['Rola','523236',2],['Ronvel','523287',57],['Sarangpur','523272',10],
+       ['Segva','523260',1],['Segvi (Part)','523280',31],['Tithal (Og)','523322',9],
+       ['Umarsadi','523242',1],['Untdi','523229',248],['Vasan','523232',26],['Velvach','523311',32]]},
+
+  vapi:{ label:'Vapi', district:'valsad', center:[20.37,72.91], zoom:11,
+    v:[['Koparli','523493',69],['Morai','523469',56],['Pandor','523486',13],['Tarakpardi','523466',34]]}
+};
+
+// ─── Fallback bbox coords (used if GeoJSON not loaded yet) ────────────────────
+var FALLBACK_BBOX = {
+  bardoli:[21.00,21.22,73.04,73.27],  chorasi:[21.05,21.15,72.88,72.96],
+  kamrej:[21.18,21.35,72.91,73.09],   mahuva:[21.00,21.13,73.28,73.47],
+  mandvi:[21.20,21.36,73.38,73.53],   mangrol:[21.07,21.22,73.22,73.40],
+  olpad:[21.24,21.44,72.66,72.90],    palsana:[21.06,21.17,72.93,73.09],
+  umarpada:[21.38,21.52,73.38,73.65],
+  bansda:[20.67,20.80,73.29,73.45],   chikhli:[20.70,20.82,73.01,73.15],
+  gandevi:[20.78,20.89,72.88,73.00],  jalalpore:[20.83,20.96,72.81,72.95],
+  navsarit:[20.89,21.01,72.85,72.99],
+  dharampur:[20.47,20.61,73.10,73.28],pardi:[20.45,20.58,72.87,73.02],
+  umbergaon:[20.09,20.25,72.70,72.83],valsadt:[20.53,20.66,72.85,72.99],
+  vapi:[20.30,20.43,72.84,72.98]
+};
+
+function fallbackCoord(tkey, code) {
+  var bb = FALLBACK_BBOX[tkey] || [21,22,72,73];
+  var n = parseInt(code);
+  var h1 = ((n*97+31)%1000)/1000, h2 = ((n*137+59)%1000)/1000;
+  return { lat: parseFloat((bb[0]+h1*(bb[1]-bb[0])).toFixed(4)), lng: parseFloat((bb[2]+h2*(bb[3]-bb[2])).toFixed(4)) };
+}
+
+// ─── Build DATA ───────────────────────────────────────────────────────────────
+var DATA = {};
+Object.keys(RAW).forEach(function(k) {
+  var r = RAW[k];
+  DATA[k] = {
+    label: r.label, district: r.district, center: r.center, zoom: r.zoom,
+    villages: r.v.map(function(x) {
+      var co = coordCache[x[1]] || fallbackCoord(k, x[1]);
+      return { n:x[0], c:x[1], cnt:x[2], lat:co.lat, lng:co.lng };
+    })
+  };
+});
+
+var DISTRICTS = {
+  surat:  { label:'Surat',   talukas:['bardoli','chorasi','kamrej','mahuva','mandvi','mangrol','olpad','palsana','umarpada'], center:[21.15,73.0], zoom:10 },
+  navsari:{ label:'Navsari', talukas:['bansda','chikhli','gandevi','jalalpore','navsarit'], center:[20.87,72.96], zoom:10 },
+  valsad: { label:'Valsad',  talukas:['dharampur','pardi','umbergaon','valsadt','vapi'], center:[20.45,72.95], zoom:10 }
+};
+
+// ─── Collect all village codes that need coords ───────────────────────────────
+function getMissingCodes() {
+  var missing = [];
+  Object.keys(RAW).forEach(function(k) {
+    RAW[k].v.forEach(function(x) {
+      if (!coordCache[x[1]]) missing.push(x[1]);
+    });
+  });
+  return missing;
+}
+
+// ─── First-run: fetch GeoJSON and extract centroids ───────────────────────────
+var initSkipped = false;
+function skipInit() {
+  initSkipped = true;
+  document.getElementById('init-overlay').classList.add('done');
+  startApp();
+}
+
+function runFirstTimeSetup() {
+  var missing = getMissingCodes();
+  if (missing.length === 0) {
+    document.getElementById('init-overlay').classList.add('done');
+    startApp();
+    return;
+  }
+  // Build a Set for O(1) lookup
+  var missingSet = {};
+  missing.forEach(function(c) { missingSet[c] = true; });
+  var found = 0, total = missing.length;
+  document.getElementById('init-msg').innerHTML =
+    'Downloading accurate village coordinates from<br><strong>Census of India data (one-time only)</strong>';
+
+  fetch(GEOJSON_URL)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      // Stream-process: read as text chunks to show progress
+      var reader = r.body.getReader();
+      var decoder = new TextDecoder();
+      var text = '';
+      var totalBytes = parseInt(r.headers.get('content-length') || '0');
+      var gotBytes = 0;
+
+      function pump() {
+        return reader.read().then(function(result) {
+          if (initSkipped) return;
+          if (result.done) { processGeoJSON(text, missingSet); return; }
+          gotBytes += result.value.length;
+          text += decoder.decode(result.value, { stream: true });
+          var pct = totalBytes > 0 ? Math.min(95, Math.round(gotBytes/totalBytes*95)) : 0;
+          document.getElementById('init-bar').style.width = pct + '%';
+          document.getElementById('init-msg').innerHTML =
+            'Downloading village map data&hellip; ' + (totalBytes>0 ? Math.round(gotBytes/1024/1024*10)/10+'MB / '+Math.round(totalBytes/1024/1024*10)/10+'MB' : Math.round(gotBytes/1024)+'KB');
+          return pump();
+        });
+      }
+      return pump();
+    })
+    .catch(function(err) {
+      document.getElementById('init-msg').innerHTML =
+        '&#9888; Could not download map data.<br>App will use approximate locations.<br><small>' + err.message + '</small>';
+      setTimeout(function() {
+        document.getElementById('init-overlay').classList.add('done');
+        startApp();
+      }, 3000);
+    });
+}
+
+function processGeoJSON(text, missingSet) {
+  document.getElementById('init-msg').innerHTML = 'Extracting village coordinates&hellip;';
+  document.getElementById('init-bar').style.width = '97%';
+  setTimeout(function() {
+    try {
+      var gj = JSON.parse(text);
+      var saved = 0;
+      gj.features.forEach(function(f) {
+        var code = String(f.properties.census_code || f.properties.village_census_code || f.properties.lgd_code || '');
+        // Strip leading zeros
+        var codeInt = parseInt(code);
+        if (!missingSet[String(codeInt)]) return;
+        // Extract centroid from geometry
+        var geom = f.geometry;
+        var lat, lng;
+        if (geom.type === 'Point') {
+          lng = geom.coordinates[0]; lat = geom.coordinates[1];
+        } else if (geom.type === 'Polygon') {
+          var pts = geom.coordinates[0];
+          var slat=0, slng=0;
+          pts.forEach(function(p){slng+=p[0];slat+=p[1];});
+          lng=slng/pts.length; lat=slat/pts.length;
+        } else if (geom.type === 'MultiPolygon') {
+          var allPts = geom.coordinates[0][0];
+          var slat=0,slng=0;
+          allPts.forEach(function(p){slng+=p[0];slat+=p[1];});
+          lng=slng/allPts.length; lat=slat/allPts.length;
+        }
+        // Also check properties for pre-computed centroid
+        if (f.properties.centroid_latitude) { lat=parseFloat(f.properties.centroid_latitude); lng=parseFloat(f.properties.centroid_longitude); }
+        if (lat && lng && lat>18 && lat<25 && lng>69 && lng<75) {
+          var k = String(codeInt);
+          coordCache[k] = { lat:parseFloat(lat.toFixed(5)), lng:parseFloat(lng.toFixed(5)) };
+          saved++;
+        }
       });
-      return out;
-    })()},
+      // Persist
+      try { localStorage.setItem(COORD_KEY, JSON.stringify(coordCache)); } catch(e){}
+      // Update DATA with real coords
+      Object.keys(DATA).forEach(function(tk) {
+        DATA[tk].villages.forEach(function(v) {
+          if (coordCache[v.c]) { v.lat=coordCache[v.c].lat; v.lng=coordCache[v.c].lng; }
+        });
+      });
+      document.getElementById('init-bar').style.width = '100%';
+      document.getElementById('init-msg').innerHTML = '&#10003; Coordinates ready for ' + saved + ' villages!';
+    } catch(e) {
+      document.getElementById('init-msg').innerHTML = '&#9888; Parse error. Using approximate locations.';
+    }
+    setTimeout(function() {
+      document.getElementById('init-overlay').classList.add('done');
+      startApp();
+    }, 800);
+  }, 50);
+}
 
-  mahuva:{label:'Mahuva',district:'surat',center:[21.065,73.36],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Amchak','524359',25],['Andhatri','524365',1],['Bamaniya','524391',24],
-        ['Bartad','524380',91],['Bhoriya','524402',59],['Dhamkhadi','524404',12],
-        ['Dholikui','524377',177],['Dhundhesa','524354',1],['Dungari','524367',66],
-        ['Fulvadi','524378',4],['Ghadoi','524388',33],['Gunasvel','524397',195],
-        ['Haladva','524407',52],['Jhervavra','524390',206],['Kachhal','524369',43],
-        ['Kadhaiya','524382',18],['Kadiya','524370',81],['Kani','524356',200],
-        ['Karcheliya','524381',378],['Kavitha','524374',30],['Khandal','524371',24],
-        ['Lasanpor','524411',41],['Mahuvariya','524406',32],['Miyapur','524362',16],
-        ['Nihali','524376',2],['Ondach','524360',283],['Puna','524395',55],
-        ['Samba','524401',45],['Sevasan','524375',1],['Vadiya','524366',1],
-        ['Valvada','524403',3],['Vank','524392',109],['Vasrai','524396',14]
-      ];
-      return d.map(function(x){var co=vc(x[1],21.00,21.13,73.28,73.47);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
+// ─── App globals ──────────────────────────────────────────────────────────────
+var curDistrict='surat', curTaluka='bardoli';
+var userLat=null, userLng=null, selV=null, allMarkers=[], tblSort='count';
+var gpsWatching=false, gpsM=null, gpsC=null;
 
-  mandvi:{label:'Mandvi',district:'surat',center:[21.275,73.445],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Amba','524011',198],['Bori','524043',8],['Choramba','523955',146],
-        ['Devgadh','523970',1],['Devgiri','523966',158],['Dharampor','523948',129],
-        ['Fali','523987',2],['Gamtalav Bujrang','524054',174],['Gavachhi','524045',2],
-        ['Godavadi','524052',281],['Godsamba','524042',158],['Jamankuva Bar','524073',2],
-        ['Jhab','524012',1],['Junvan','523971',40],['Kamlapor','524048',103],
-        ['Kevdi','524029',4],['Khanjroli','524047',56],['Kharoli','524049',123],
-        ['Khod Amba','523975',18],['Madharkui','523976',148],['Munjlav','523982',137],
-        ['Nandpor','524044',93],['Naren','524019',4],['Patal','523951',5],
-        ['Patna','524016',1],['Piparia','524046',16],['Rosvad','523980',25],
-        ['Rupan','524058',1],['Tarsadabar Gam','524068',210],['Togapur','523947',84],
-        ['Tuked','523950',207],['Ushker Ramkund','523979',33],['Vadod','523984',147],
-        ['Valargadh','524023',70],['Vareth','524064',35],['Varethi','523945',74],
-        ['Varjakhan','524067',21]
-      ];
-      return d.map(function(x){var co=vc(x[1],21.20,21.36,73.38,73.53);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
+function gc(n){ return n>=200?'#ef5350':n>=100?'#ff9800':n>=50?'#4caf50':'#78909c'; }
+function tier(n){ return n>=200?'Very High':n>=100?'High':n>=50?'Medium':'Low'; }
+function hav(a,b,c,d){ var R=6371,x=Math.sin((c-a)*Math.PI/360),y=Math.sin((d-b)*Math.PI/360),p=x*x+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*y*y; return R*2*Math.atan2(Math.sqrt(p),Math.sqrt(1-p)); }
+function fd(d){ return d<1?(d*1000).toFixed(0)+' m':d.toFixed(1)+' km'; }
+function pdfURL(t,n){ return GITHUB+t+'/'+encodeURIComponent(n)+'.pdf'; }
 
-  mangrol:{label:'Mangrol',district:'surat',center:[21.12,73.31],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Ambavadi','523849',236],['Ankdod','523799',19],['Ansodala','523855',44],
-        ['Asarma','523820',133],['Bhadkuva','523806',56],['Bhatkol','523861',95],
-        ['Bhilvada','523805',206],['Borsad','523870',122],['Charetha','523835',2],
-        ['Chhamuchhal','523864',5],['Dholikui','523839',161],['Dinod','523797',50],
-        ['Dungri','523869',235],['Gadkachh','523837',3],['Ghodbar','523879',26],
-        ['Gijram','523800',132],['Harsani','523803',179],['Jhankharda','523851',47],
-        ['Jhinora','523838',92],['Kansali','523873',21],['Kanvada','523817',85],
-        ['Kargara','523814',27],['Kathvada','523823',219],['Kevdi (Kund)','523809',88],
-        ['Khareda','523813',83],['Lavet','523811',113],['Limodara','523866',19],
-        ['Lindiad','523863',193],['Luvara','523819',5],['Molvan','523865',52],
-        ['Motifali','523812',73],['Nana Borsara','523791',84],['Nandav','523793',186],
-        ['Nandola','523841',95],['Nani Fali','523840',5],['Nogama','523854',147],
-        ['Panetha','523857',1],['Pataldevi','523842',66],['Pipodara','523862',114],
-        ['Ranakpor','523832',1],['Ratola','523871',170],['Sava','523822',106],
-        ['Shenthi','523856',1],['Siyalaj','523826',222],['Surali','523853',42],
-        ['Umelav','523868',2],['Vad','523807',69],['Vadoli','523834',163],
-        ['Valesa','523858',57],['Vansoli','523795',2],['Vasravi','523850',99],
-        ['Vastan','523852',54],['Velachha','523830',509]
-      ];
-      return d.map(function(x){var co=vc(x[1],21.07,21.22,73.22,73.40);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  olpad:{label:'Olpad',district:'surat',center:[21.36,72.75],zoom:11,pdfs:[],
-    villages:[
-      {n:'Karanj',c:'523686',lat:21.4050,lng:72.7112,cnt:259},
-      {n:'Kimamli',c:'523700',lat:21.4160,lng:72.8600,cnt:257},
-      {n:'Rajnagar',c:'934507',lat:21.3700,lng:72.8200,cnt:222},
-      {n:'Kadrama',c:'523694',lat:21.4228,lng:72.7670,cnt:186},
-      {n:'Sondlakhara',c:'523717',lat:21.3680,lng:72.6870,cnt:179},
-      {n:'Anita',c:'523698',lat:21.4228,lng:72.8696,cnt:173},
-      {n:'Sithan',c:'523734',lat:21.3534,lng:72.8408,cnt:170},
-      {n:'Morthan',c:'523724',lat:21.3587,lng:72.8124,cnt:162},
-      {n:'Atodra',c:'523736',lat:21.3383,lng:72.7962,cnt:153},
-      {n:'Achharan',c:'523735',lat:21.3459,lng:72.8097,cnt:152},
-      {n:'Kanthraj',c:'523733',lat:21.3649,lng:72.8408,cnt:146},
-      {n:'Bhadol',c:'523695',lat:21.4141,lng:72.8183,cnt:130},
-      {n:'Asnad',c:'523709',lat:21.3967,lng:72.7489,cnt:125},
-      {n:'Bolav',c:'523699',lat:21.4160,lng:72.8840,cnt:123},
-      {n:'Kamroli',c:'523688',lat:21.4050,lng:72.7112,cnt:117},
-      {n:'Delasa',c:'523715',lat:21.3580,lng:72.6757,cnt:111},
-      {n:'Bhatgam',c:'523720',lat:21.3738,lng:72.7437,cnt:108},
-      {n:'Mindhi',c:'523711',lat:21.3874,lng:72.7082,cnt:103},
-      {n:'Vadoli',c:'523696',lat:21.4309,lng:72.8405,cnt:100},
-      {n:'Sondamitha',c:'523708',lat:21.3830,lng:72.7696,cnt:100},
-      {n:'Karamla',c:'523746',lat:21.3144,lng:72.7968,cnt:95},
-      {n:'Koba',c:'523691',lat:21.4261,lng:72.7681,cnt:93},
-      {n:'Pardi Koba',c:'523692',lat:21.4228,lng:72.7670,cnt:84},
-      {n:'Gola',c:'523723',lat:21.3625,lng:72.7932,cnt:75},
-      {n:'Obhla',c:'523732',lat:21.3693,lng:72.8582,cnt:69},
-      {n:'Kunkni',c:'523781',lat:21.2467,lng:72.7341,cnt:68},
-      {n:'Asnabad',c:'523744',lat:21.3266,lng:72.7533,cnt:49},
-      {n:'Sarsana',c:'523707',lat:21.3954,lng:72.7769,cnt:49},
-      {n:'Kachhab',c:'523726',lat:21.3807,lng:72.8567,cnt:36},
-      {n:'Takarma',c:'523706',lat:21.3823,lng:72.7902,cnt:33},
-      {n:'Balkas',c:'523763',lat:21.2795,lng:72.7577,cnt:27},
-      {n:'Thothab',c:'523690',lat:21.4242,lng:72.7637,cnt:18},
-      {n:'Dihen',c:'523782',lat:21.2571,lng:72.6890,cnt:4},
-      {n:'Naghoi',c:'523710',lat:21.3822,lng:72.7208,cnt:2}
-    ]},
-
-  palsana:{label:'Palsana',district:'surat',center:[21.11,73.00],zoom:11,pdfs:[],
-    villages:[
-      {n:'Tundi',c:'524232',lat:21.1222,lng:73.0301,cnt:232},
-      {n:'Antroli',c:'524216',lat:21.0900,lng:72.9800,cnt:136},
-      {n:'Dhamdod',c:'524240',lat:21.1042,lng:73.0494,cnt:149},
-      {n:'Erthan',c:'524235',lat:21.1189,lng:72.9488,cnt:97},
-      {n:'Gangpor',c:'524230',lat:21.0900,lng:72.9900,cnt:103},
-      {n:'Vadadala',c:'524236',lat:21.1140,lng:72.9623,cnt:72},
-      {n:'Ghaluda',c:'524239',lat:21.0965,lng:73.0236,cnt:51},
-      {n:'Jetpor',c:'524228',lat:21.1339,lng:73.0715,cnt:45},
-      {n:'Vankaneda',c:'524223',lat:21.1572,lng:72.9534,cnt:45},
-      {n:'Barasadi',c:'524229',lat:21.1262,lng:73.0737,cnt:3},
-      {n:'Gotiya',c:'524243',lat:21.0700,lng:73.0000,cnt:12},
-      {n:'Haripura',c:'524217',lat:21.0800,lng:72.9700,cnt:5},
-      {n:'Niyol',c:'524215',lat:21.1100,lng:72.9600,cnt:1}
-    ]},
-
-  umarpada:{label:'Umarpada',district:'surat',center:[21.46,73.49],zoom:11,pdfs:[],
-    villages:[
-      {n:'Rudhi Gavan',c:'523930',lat:21.4296,lng:73.6389,cnt:633},
-      {n:'Velavi',c:'523888',lat:21.4998,lng:73.4740,cnt:237},
-      {n:'Sadadapani',c:'523887',lat:21.4996,lng:73.4578,cnt:181},
-      {n:'Vadpada',c:'523937',lat:21.4243,lng:73.6038,cnt:175},
-      {n:'Chimipatal',c:'523910',lat:21.4472,lng:73.6124,cnt:149},
-      {n:'Darda',c:'523924',lat:21.4387,lng:73.4843,cnt:72},
-      {n:'Govat',c:'523901',lat:21.4600,lng:73.4200,cnt:76},
-      {n:'Sampura',c:'523899',lat:21.4619,lng:73.3856,cnt:92},
-      {n:'Khodamba',c:'523913',lat:21.4509,lng:73.5624,cnt:69},
-      {n:'Kadvidadra',c:'523900',lat:21.4631,lng:73.3974,cnt:63},
-      {n:'Chandrapada',c:'523916',lat:21.4700,lng:73.5000,cnt:36},
-      {n:'Charni',c:'523886',lat:21.4600,lng:73.4500,cnt:30},
-      {n:'Nana Sutkhadka',c:'523905',lat:21.4400,lng:73.5000,cnt:47},
-      {n:'Umarjhar',c:'523894',lat:21.4700,lng:73.4300,cnt:45},
-      {n:'Unchvan',c:'523917',lat:21.5000,lng:73.5000,cnt:49},
-      {n:'Bardipada',c:'523929',lat:21.4500,lng:73.5500,cnt:25},
-      {n:'Kevdi (Sharda)',c:'523890',lat:21.4800,lng:73.4500,cnt:19},
-      {n:'Umarkhadi',c:'523893',lat:21.4500,lng:73.4100,cnt:1},
-      {n:'Sarda',c:'523889',lat:21.4900,lng:73.4500,cnt:2},
-      {n:'Pada',c:'523898',lat:21.4200,lng:73.4800,cnt:2},
-      {n:'Bilvan',c:'523928',lat:21.4400,lng:73.5200,cnt:1}
-    ]},
-
-  // ╔══════════════════════════════════════════════════════╗
-  // ║  NAVSARI DISTRICT                                    ║
-  // ╚══════════════════════════════════════════════════════╝
-
-  bansda:{label:'Bansda',district:'navsari',center:[20.73,73.37],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Kelkutch','523139',39],['Kureliya','523141',6],['Rupvel','523144',30],
-        ['Sara','523159',1],['Sindhai','523132',8],['Umarkui','523197',64],['Vandarvela','523177',29]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.67,20.80,73.29,73.45);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  chikhli:{label:'Chikhli',district:'navsari',center:[20.755,73.08],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Amadhara','523089',58],['Barolia','523052',18],['Donja','523068',66],
-        ['Ghekti','523075',22],['Harangam','523067',68],['Kaliyari','523087',12],
-        ['Kanbhai','523085',2],['Kangvai','523048',61],['Kharoli','523059',33],
-        ['Khudvel','523081',19],['Manekpor','523066',55],['Minkachchh','523051',37],
-        ['Ranverikhurd','523058',8],['Saravani','523083',1],['Surkhai','523061',18],
-        ['Syada','523086',40],['Talavchora','523091',89]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.70,20.82,73.01,73.15);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  gandevi:{label:'Gandevi',district:'navsari',center:[20.83,72.955],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Ajrai','523008',123],['Ambheta','523022',62],['Ancheli','523000',2],
-        ['Bilimora (Talodh) (Ct)','523042',8],['Deshad','523020',14],['Devdha','523025',99],
-        ['Dhakwada','523031',1],['Duwada','523005',11],['Endhal','523004',100],
-        ['Gadat','522998',2],['Gandeva','522994',43],['Ganghor','523010',12],
-        ['Ichhapor','522989',121],['Kalamtha','523029',15],['Kalvach','523021',57],
-        ['Khakhwada','523001',2],['Khapariya','522995',1],['Khaparwada','523038',3],
-        ['Kotha','523013',274],['Manekpor','522997',17],['Mohanpur','522986',48],
-        ['Nandarkha','523033',56],['Pathri','523002',74],['Pati','523023',45],
-        ['Pinjra','522990',67],['Pipaldhara','522996',41],['Rahej','523007',41],
-        ['Salej','522988',1],['Sarikhurd','523015',49],['Sonwadi','522999',1],
-        ['Vadsangal','523006',134],['Valoti','523024',151],['Vasan','523012',1]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.78,20.89,72.88,73.00);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  jalalpore:{label:'Jalalpore',district:'navsari',center:[20.89,72.875],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Alak','522933',62],['Alura','522948',1],['Asana','522926',68],
-        ['Bhinar','522945',339],['Borsi','522957',25],['Chokhad','522924',73],
-        ['Dalki','522939',72],['Danti','522914',237],['Delvada','522946',1],
-        ['Dipla','522943',361],['Ethan','522965',2],['Hansapor','522968',1],
-        ['Kadoli','522938',1],['Kalakachha','522927',42],['Kanera','522984',13],
-        ['Karadi','522961',69],['Karankhat','522918',247],['Karod Kothva','522977',1],
-        ['Kothamadi','522964',2],['Kuched','522931',102],['Machhad','522962',1],
-        ['Magob','522917',76],['Manekpor','522953',70],['Mangrol','522940',2],
-        ['Matwad','522960',3],['Mirjapor','522951',67],['Nadod','522920',69],
-        ['Parujan','522919',170],['Pethan','522963',67],['Sagra','522952',1],
-        ['Samapor','522959',1],['Sandalpor','522935',74],['Sarav','522978',83],
-        ['Simalgam','522949',288],['Sultanpur','522972',17],['Tankoli','522954',17],
-        ['Tavdi','522955',1],['Umbhrat','522915',296],['Vansi','522944',22],
-        ['Vedchha','522976',1],['Wada','522923',17]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.83,20.96,72.81,72.95);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  navsarit:{label:'Navsari',district:'navsari',center:[20.955,72.925],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Amadpor','522859',156],['Ambada','522875',112],['Amri','522858',1],
-        ['Ashtagam','522881',199],['Asundar','522844',26],['Boriach','522902',99],
-        ['Butlav','522893',48],['Dabhalai','522890',75],['Dandesar','522866',60],
-        ['Dhaman','522846',104],['Kachhol','522897',2],['Kadipor','522856',49],
-        ['Kanbad','522894',48],['Kumbhar Faliya','522892',70],['Kurel','522852',112],
-        ['Mogar','522900',339],['Moldhara','522860',153],['Nagdhara','522891',35],
-        ['Navapara','522877',18],['Onchi','522867',50],['Padgha','522855',192],
-        ['Pardi','522888',50],['Parthan','522847',92],['Pinsad','522854',50],
-        ['Puni','522907',50],['Sadlav','522880',107],['Sarai','522845',2],
-        ['Sarona','522850',50],['Sarpor','522889',72],['Shahu','522864',50],
-        ['Singod','522865',73],['Tarsadi','522861',23],['Toli','522879',5],
-        ['Ugat','522876',139],['Un','522882',53],['Vachharvad','522863',77],
-        ['Vasar','522874',1],['Vejalpor','522848',70],['Virwadi','522868',50]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.89,21.01,72.85,72.99);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  // ╔══════════════════════════════════════════════════════╗
-  // ║  VALSAD DISTRICT                                     ║
-  // ╚══════════════════════════════════════════════════════╝
-
-  dharampur:{label:'Dharampur',district:'valsad',center:[20.535,73.185],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Barumal','523354',1],['Bhensdara','523388',14],['Bildha','523366',6],
-        ['Ganva','523362',8],['Hathanbari','523342',5],['Khadki','523401',33],
-        ['Khanda','523333',18],['Kosimpada','523372',4],['Kurgam','523384',1],
-        ['Madhuri','523400',37],['Molveri','523365',9],['Pondha Jungle','523415',30],
-        ['Rajpuri Jungle','523357',13],['Rajpuri Talat','523327',1],['Sidumber','523355',1],
-        ['Tanachhiya','523339',20],['Tanki','523382',1],['Tiskari Talat','523351',1],
-        ['Tumbi','523383',1],['Ukta','523378',13],['Zariya','523380',3]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.47,20.61,73.10,73.28);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  pardi:{label:'Pardi',district:'valsad',center:[20.515,72.96],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Arnala','523478',50],['Barai','523481',1],['Borlai','523440',21],
-        ['Chival','523477',1],['Dashwada','523452',4],['Dhagadmal','523475',1],
-        ['Khadki','523443',7],['Kherlav','523485',8],['Lakhmapor','523458',1],
-        ['Motiwada','523444',70],['Nevri','523459',1],['Orvad (Ct)','523501',39],
-        ['Rentlav','523450',28],['Rohina','523473',1],['Samarpada','523474',14],
-        ['Saran','523465',34],['Sukhesh','523439',1],['Sukhlav','523441',16]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.45,20.58,72.87,73.02);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  umbergaon:{label:'Umbergaon',district:'valsad',center:[20.175,72.76],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Ahu','523668',72],['Angam','523649',11],['Borigam','523655',21],
-        ['Eklahre','523644',33],['Jamburi','523640',7],['Kalai','523637',288],
-        ['Manda','523653',12],['Nahuli','523645',16],['Pali','523641',28],
-        ['Punat','523643',4],['Saronda','523659',87],['Vankas','523666',12]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.09,20.25,72.70,72.83);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  valsadt:{label:'Valsad',district:'valsad',center:[20.595,72.93],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Atar','523295',3],['Atul','909101',1],['Bhadeli Desai Party','523253',1],
-        ['Bhagod','523297',50],['Bhoma Pardi','523288',4],['Bodlai','523303',20],
-        ['Chinchai','523312',35],['Dhanori','523247',46],['Dulsad','523285',1],
-        ['Fanaswada','523258',1],['Gorgam','523234',1],['Gorwada','523266',10],
-        ['Jespor','523230',1],['Khajurdi','523256',24],['Kochwada','523268',1],
-        ['Magod Dungri','523294',1],['Meh','523296',38],['Muli','523261',8],
-        ['Navera','523302',1],['Palan','523257',8],['Pitha','523270',53],
-        ['Rola','523236',2],['Ronvel','523287',57],['Sarangpur','523272',10],
-        ['Segva','523260',1],['Segvi (Part)','523280',31],['Tithal (Og)','523322',9],
-        ['Umarsadi','523242',1],['Untdi','523229',248],['Vasan','523232',26],
-        ['Velvach','523311',32]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.53,20.66,72.85,72.99);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()},
-
-  vapi:{label:'Vapi',district:'valsad',center:[20.37,72.91],zoom:11,pdfs:[],
-    villages:(function(){
-      var d=[
-        ['Koparli','523493',69],['Morai','523469',56],['Pandor','523486',13],['Tarakpardi','523466',34]
-      ];
-      return d.map(function(x){var co=vc(x[1],20.30,20.43,72.84,72.98);return{n:x[0],c:x[1],lat:co.lat,lng:co.lng,cnt:x[2]};});
-    })()}
-};
-
-// District registry
-var DISTRICTS={
-  surat:{label:'Surat',talukas:['bardoli','chorasi','kamrej','mahuva','mandvi','mangrol','olpad','palsana','umarpada'],center:[21.15,73.0],zoom:10},
-  navsari:{label:'Navsari',talukas:['bansda','chikhli','gandevi','jalalpore','navsarit'],center:[20.87,72.96],zoom:10},
-  valsad:{label:'Valsad',talukas:['dharampur','pardi','umbergaon','valsadt','vapi'],center:[20.45,72.95],zoom:10}
-};
-
-var curDistrict='surat',curTaluka='bardoli';
-var userLat=null,userLng=null,selV=null,allMarkers=[],tblSort='count';
-var gpsWatching=false,gpsM=null,gpsC=null;
-
-function gc(n){return n>=200?'#ef5350':n>=100?'#ff9800':n>=50?'#4caf50':'#78909c';}
-function tier(n){return n>=200?'Very High':n>=100?'High':n>=50?'Medium':'Low';}
-function hav(a,b,c,d){var R=6371,x=Math.sin((c-a)*Math.PI/360),y=Math.sin((d-b)*Math.PI/360),p=x*x+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*y*y;return R*2*Math.atan2(Math.sqrt(p),Math.sqrt(1-p));}
-function fd(d){return d<1?(d*1000).toFixed(0)+' m':d.toFixed(1)+' km';}
-function hasPDF(t,n){return DATA[t].pdfs.indexOf(n)>=0;}
-function pdfURL(t,n){return GITHUB+t+'/'+encodeURIComponent(n)+'.pdf';}
-
-var map=L.map('map').setView([21.15,73.0],10);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  maxZoom:19
+// ─── Map ──────────────────────────────────────────────────────────────────────
+var map = L.map('map').setView([21.15,73.0],10);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
 }).addTo(map);
 
-function buildTalukaBar(){
-  var bar=document.getElementById('taluka-bar');
-  bar.innerHTML='';
-  DISTRICTS[curDistrict].talukas.forEach(function(k){
-    var b=document.createElement('button');
-    b.className='tk-btn'+(k===curTaluka?' active':'');
-    b.textContent=DATA[k].label;
-    b.onclick=(function(tk,btn){return function(){setTaluka(tk,btn);};})(k,b);
+// ─── Start app ────────────────────────────────────────────────────────────────
+function startApp() {
+  buildTalukaBar();
+  loadTaluka();
+}
+
+function buildTalukaBar() {
+  var bar = document.getElementById('taluka-bar');
+  bar.innerHTML = '';
+  DISTRICTS[curDistrict].talukas.forEach(function(k) {
+    var b = document.createElement('button');
+    b.className = 'tk-btn' + (k===curTaluka?' active':'');
+    b.textContent = DATA[k].label;
+    b.onclick = (function(tk,el){ return function(){ setTaluka(tk,el); }; })(k,b);
     bar.appendChild(b);
   });
 }
 
-function setDistrict(d,btn){
+function setDistrict(d,btn) {
   curDistrict=d;
-  document.querySelectorAll('.dk-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.dk-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   curTaluka=DISTRICTS[d].talukas[0];
-  buildTalukaBar();
-  closePanel();
-  resetFilters();
-  loadTaluka();
+  buildTalukaBar(); closePanel(); resetFilters(); loadTaluka();
 }
 
-function setTaluka(k,btn){
+function setTaluka(k,btn) {
   curTaluka=k;
-  document.querySelectorAll('.tk-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.tk-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  closePanel();
-  resetFilters();
-  loadTaluka();
+  closePanel(); resetFilters(); loadTaluka();
 }
 
-function resetFilters(){
-  ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+function resetFilters() {
+  ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
   document.getElementById('fb-all').classList.add('active');
 }
 
-function loadTaluka(){
-  var td=DATA[curTaluka];
-  allMarkers.forEach(function(o){map.removeLayer(o.marker);});
-  allMarkers=[];
-  var vs=td.villages;
-  var tot=vs.reduce(function(s,v){return s+v.cnt;},0);
-  var top=vs.slice().sort(function(a,b){return b.cnt-a.cnt;})[0];
-  var mx=top.cnt;
-  document.getElementById('s-total').textContent=tot.toLocaleString();
-  document.getElementById('s-villages').textContent=vs.length;
-  document.getElementById('s-top').textContent=top.n+' ('+top.cnt+')';
-  document.getElementById('hdr-sub').textContent=DISTRICTS[curDistrict].label+' \u203a '+td.label+' \u00b7 '+vs.length+' villages';
-  vs.forEach(function(v){
-    v._mx=mx;
-    var c=gc(v.cnt),r=8+Math.round((v.cnt/mx)*14),sz=r*2;
-    var icon=L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>26?10:8)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'55;cursor:pointer;">'+v.cnt+'</div>',iconSize:[sz,sz],iconAnchor:[r,r]});
-    var m=L.marker([v.lat,v.lng],{icon:icon}).addTo(map);
-    m.on('click',function(){openPanel(v);});
+function loadTaluka() {
+  var td = DATA[curTaluka];
+  allMarkers.forEach(function(o){ map.removeLayer(o.marker); });
+  allMarkers = [];
+  var vs = td.villages;
+  var tot = vs.reduce(function(s,v){ return s+v.cnt; },0);
+  var top = vs.slice().sort(function(a,b){ return b.cnt-a.cnt; })[0];
+  var mx = top.cnt;
+  document.getElementById('s-total').textContent = tot.toLocaleString();
+  document.getElementById('s-villages').textContent = vs.length;
+  document.getElementById('s-top').textContent = top.n+' ('+top.cnt+')';
+  document.getElementById('hdr-sub').textContent = DISTRICTS[curDistrict].label+' \u203a '+td.label+' \u00b7 '+vs.length+' villages';
+  vs.forEach(function(v) {
+    v._mx = mx;
+    var c=gc(v.cnt), r=8+Math.round((v.cnt/mx)*14), sz=r*2;
+    var icon=L.divIcon({className:'',html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border:2px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz>26?10:8)+'px;font-weight:700;color:#fff;box-shadow:0 0 '+r+'px '+c+'55;cursor:pointer;">'+v.cnt+'</div>',iconSize:[sz,sz],iconAnchor:[r,r]});
+    var m = L.marker([v.lat,v.lng],{icon:icon}).addTo(map);
+    m.on('click', function(){ openPanel(v); });
     allMarkers.push({marker:m,village:v});
   });
-  map.setView(td.center,td.zoom);
+  map.setView(td.center, td.zoom);
   updateNear();
-  if(document.getElementById('table-view').style.display==='flex')renderTable();
+  if (document.getElementById('table-view').style.display==='flex') renderTable();
 }
 
-function openPanel(v){
-  selV=v;
-  var c=gc(v.cnt);
-  document.getElementById('pv-name').textContent=v.n;
-  document.getElementById('pv-meta').textContent='Code: '+v.c+' \u00b7 '+DATA[curTaluka].label+' Taluka, '+DISTRICTS[curDistrict].label;
-  document.getElementById('pv-count').textContent=v.cnt;
-  document.getElementById('pv-count').style.color=c;
-  var b=document.getElementById('pv-badge');
-  b.textContent=tier(v.cnt);b.style.background=c+'22';b.style.color=c;b.style.borderColor=c+'55';
-  document.getElementById('pv-bar-fill').style.width=Math.round((v.cnt/v._mx)*100)+'%';
-  document.getElementById('pv-bar-fill').style.background=c;
-  document.getElementById('pv-dist').textContent=userLat!==null?'\ud83d\udccd '+fd(hav(userLat,userLng,v.lat,v.lng))+' from you':'\ud83d\udccd Tap GPS button to see distance';
-  var has=hasPDF(curTaluka,v.n);
-  var vb=document.getElementById('btn-view-panel'),db=document.getElementById('btn-dl-panel');
-  if(has){vb.className='btn btn-view';vb.textContent='\ud83d\udc41 View PDF';db.className='btn btn-dl';db.textContent='\u2B07 Download';}
-  else{vb.className='btn btn-na';vb.textContent='PDF soon';db.className='btn btn-na';db.textContent='PDF soon';}
+// ─── Panel — PDF auto-detected via HEAD request ───────────────────────────────
+function openPanel(v) {
+  selV = v;
+  var c = gc(v.cnt);
+  document.getElementById('pv-name').textContent = v.n;
+  document.getElementById('pv-meta').textContent = 'Code: '+v.c+' \u00b7 '+DATA[curTaluka].label+' Taluka, '+DISTRICTS[curDistrict].label;
+  document.getElementById('pv-count').textContent = v.cnt;
+  document.getElementById('pv-count').style.color = c;
+  var b = document.getElementById('pv-badge');
+  b.textContent=tier(v.cnt); b.style.background=c+'22'; b.style.color=c; b.style.borderColor=c+'55';
+  document.getElementById('pv-bar-fill').style.width = Math.round((v.cnt/v._mx)*100)+'%';
+  document.getElementById('pv-bar-fill').style.background = c;
+  document.getElementById('pv-dist').textContent = userLat!==null ? '\ud83d\udccd '+fd(hav(userLat,userLng,v.lat,v.lng))+' from you' : '\ud83d\udccd Tap GPS button to see distance';
+  // PDF buttons: show "checking…" then update based on HEAD result
+  var vb=document.getElementById('btn-view-panel'), db=document.getElementById('btn-dl-panel');
+  vb.className='btn btn-na'; vb.textContent='Checking PDF\u2026';
+  db.className='btn btn-na'; db.textContent='';
   document.getElementById('panel').classList.add('open');
+  checkPdf(curTaluka, v.n, function(has) {
+    if (!selV || selV.c !== v.c) return; // panel changed
+    if (has) {
+      vb.className='btn btn-view'; vb.textContent='\ud83d\udc41 View PDF';
+      db.className='btn btn-dl';  db.textContent='\u2B07 Download';
+    } else {
+      vb.className='btn btn-na'; vb.textContent='PDF not available';
+      db.className='btn btn-na'; db.textContent='PDF soon';
+    }
+  });
 }
-function closePanel(){document.getElementById('panel').classList.remove('open');selV=null;}
-function navigateTo(){if(!selV)return;window.open('https://www.google.com/maps/dir/?api=1&destination='+selV.lat+','+selV.lng+'&travelmode=driving','_blank');}
-function viewPDF(){if(!selV||!hasPDF(curTaluka,selV.n))return;window.open(pdfURL(curTaluka,selV.n),'_blank');}
+function closePanel(){ document.getElementById('panel').classList.remove('open'); selV=null; }
+function navigateTo(){ if(!selV)return; window.open('https://www.google.com/maps/dir/?api=1&destination='+selV.lat+','+selV.lng+'&travelmode=driving','_blank'); }
+function viewPDF(){ if(!selV)return; window.open(pdfURL(curTaluka,selV.n),'_blank'); }
 function dlPDF(){
-  if(!selV||!hasPDF(curTaluka,selV.n))return;
-  var url=pdfURL(curTaluka,selV.n),name=selV.n;
+  if(!selV)return;
+  var url=pdfURL(curTaluka,selV.n), name=selV.n;
   fetch(url).then(function(r){return r.blob();}).then(function(blob){
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.pdf';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name+'.pdf';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }).catch(function(){window.open(url,'_blank');});
 }
 
-function setFb(id){['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(x){document.getElementById(x).classList.remove('active');});document.getElementById(id).classList.add('active');}
+// ─── Filters ──────────────────────────────────────────────────────────────────
+function setFb(id){ ['fb-all','fb-high','fb-med','fb-low','fb-near'].forEach(function(x){ document.getElementById(x).classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
 function filterMap(t){
   setFb({all:'fb-all',high:'fb-high',medium:'fb-med',low:'fb-low'}[t]||'fb-all');
   allMarkers.forEach(function(o){
@@ -714,25 +733,25 @@ function sortByNearest(){
   setFb('fb-near');
   allMarkers.forEach(function(o){if(!map.hasLayer(o.marker))o.marker.addTo(map);});
   var s=DATA[curTaluka].villages.slice().sort(function(a,b){return hav(userLat,userLng,a.lat,a.lng)-hav(userLat,userLng,b.lat,b.lng);});
-  map.setView([s[0].lat,s[0].lng],14);openPanel(s[0]);
+  map.setView([s[0].lat,s[0].lng],14); openPanel(s[0]);
 }
 
-function setPill(st,txt){var p=document.getElementById('gps-pill');p.className='';if(st==='on')p.classList.add('on');if(st==='err')p.classList.add('err');p.textContent=txt;}
+// ─── GPS ──────────────────────────────────────────────────────────────────────
+function setPill(st,txt){ var p=document.getElementById('gps-pill'); p.className=''; if(st==='on')p.classList.add('on'); if(st==='err')p.classList.add('err'); p.textContent=txt; }
 function onPos(pos){
-  userLat=pos.coords.latitude;userLng=pos.coords.longitude;
+  userLat=pos.coords.latitude; userLng=pos.coords.longitude;
   setPill('on','\u25cf GPS On');
   if(gpsM){map.removeLayer(gpsM);map.removeLayer(gpsC);}
   gpsC=L.circle([userLat,userLng],{radius:pos.coords.accuracy,color:'#1976d2',fillColor:'#1976d2',fillOpacity:0.1,weight:1}).addTo(map);
   gpsM=L.marker([userLat,userLng],{icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#1976d2;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(25,118,210,.9);"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:1000}).addTo(map);
-  updateNear();
-  if(selV)openPanel(selV);
+  updateNear(); if(selV)openPanel(selV);
 }
-function onErr(e){setPill('err',e.code===1?'\u26a0 Blocked':'\u26a0 GPS error');}
+function onErr(e){ setPill('err',e.code===1?'\u26a0 Blocked':'\u26a0 GPS error'); }
 function requestGPS(){
   if(!navigator.geolocation){alert('Geolocation not supported');return;}
-  setPill('','&#x27F3; Locating...');
+  setPill('','\u27f3 Locating...');
   navigator.geolocation.getCurrentPosition(function(pos){
-    onPos(pos);map.setView([pos.coords.latitude,pos.coords.longitude],13);
+    onPos(pos); map.setView([pos.coords.latitude,pos.coords.longitude],13);
     if(!gpsWatching){gpsWatching=true;navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000});}
   },onErr,{enableHighAccuracy:true,timeout:20000});
 }
@@ -742,6 +761,7 @@ function updateNear(){
   document.getElementById('s-near').textContent=s[0].n+' ('+hav(userLat,userLng,s[0].lat,s[0].lng).toFixed(1)+'km)';
 }
 
+// ─── Tabs / Table ─────────────────────────────────────────────────────────────
 function switchTab(t){
   document.getElementById('tab-map').classList.toggle('active',t==='map');
   document.getElementById('tab-tbl').classList.toggle('active',t==='table');
@@ -750,7 +770,6 @@ function switchTab(t){
   if(t==='map')map.invalidateSize();
   if(t==='table')renderTable();
 }
-
 function setSort(s){
   if(s==='dist'&&userLat===null){alert('Tap GPS button first');return;}
   tblSort=s;
@@ -758,7 +777,6 @@ function setSort(s){
   document.getElementById('ts-'+s).classList.add('active');
   renderTable();
 }
-
 function renderTable(){
   var q=(document.getElementById('tbl-search').value||'').toLowerCase().trim();
   var vs=DATA[curTaluka].villages.filter(function(v){return !q||v.n.toLowerCase().indexOf(q)>=0;});
@@ -768,7 +786,13 @@ function renderTable(){
   var mx=DATA[curTaluka].villages.reduce(function(m,v){return Math.max(m,v.cnt);},1);
   var html='';
   vs.forEach(function(v,i){
-    var c=gc(v.cnt),dStr=userLat!==null?fd(hav(userLat,userLng,v.lat,v.lng)):'&#8212;',bw=Math.round((v.cnt/mx)*100),has=hasPDF(curTaluka,v.n);
+    var c=gc(v.cnt), dStr=userLat!==null?fd(hav(userLat,userLng,v.lat,v.lng)):'&#8212;', bw=Math.round((v.cnt/mx)*100);
+    var pdfStatus=getCachedPdf(curTaluka,v.n);
+    var pdfBtns = pdfStatus===true
+      ? '<button class="tr-view" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.n)+'\',\'_blank\')">View</button>'
+        +'<button class="tr-dl" onclick="event.stopPropagation();dlFile(\''+pdfURL(curTaluka,v.n)+'\',\''+v.n+'\')">DL</button>'
+      : pdfStatus===false ? '<button class="tr-na" disabled>No PDF</button>'
+      : '<button class="tr-na" onclick="event.stopPropagation();tapPdfCheck(\''+v.c+'\')">PDF?</button>';
     html+='<div class="tr" onclick="onRowTap(\''+v.c+'\')">'
       +'<span class="tr-rank">'+(i+1)+'</span>'
       +'<span class="tr-dot" style="background:'+c+'"></span>'
@@ -777,32 +801,34 @@ function renderTable(){
       +'<div class="tr-right"><div class="tr-count" style="color:'+c+'">'+v.cnt+'</div><div class="tr-dist">'+dStr+'</div></div>'
       +'<div class="tr-acts">'
       +'<button class="tr-go" onclick="event.stopPropagation();goNav('+v.lat+','+v.lng+')">Go</button>'
-      +(has?'<button class="tr-view" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.n)+'\',\'_blank\')">View</button>':'')
-      +(has?'<button class="tr-dl" onclick="event.stopPropagation();dlFile(\''+pdfURL(curTaluka,v.n)+'\',\''+v.n+'\')">DL</button>':'<button class="tr-na" disabled>PDF</button>')
+      +pdfBtns
       +'</div></div>';
   });
   if(!html)html='<p style="text-align:center;color:#1a3050;padding:30px 0;font-size:13px;">No villages found</p>';
   document.getElementById('tbl-wrap').innerHTML=html;
 }
-
-function onRowTap(code){
-  var v=DATA[curTaluka].villages.find(function(x){return x.c===code;});
-  if(!v)return;
-  v._mx=DATA[curTaluka].villages.reduce(function(m,x){return Math.max(m,x.cnt);},1);
-  switchTab('map');map.setView([v.lat,v.lng],14);openPanel(v);
+function tapPdfCheck(code){
+  var v=DATA[curTaluka].villages.find(function(x){return x.c===code;}); if(!v)return;
+  checkPdf(curTaluka,v.n,function(){ renderTable(); });
 }
-function goNav(lat,lng){window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank');}
+function onRowTap(code){
+  var v=DATA[curTaluka].villages.find(function(x){return x.c===code;}); if(!v)return;
+  v._mx=DATA[curTaluka].villages.reduce(function(m,x){return Math.max(m,x.cnt);},1);
+  switchTab('map'); map.setView([v.lat,v.lng],14); openPanel(v);
+}
+function goNav(lat,lng){ window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=driving','_blank'); }
 function dlFile(url,name){
   fetch(url).then(function(r){return r.blob();}).then(function(blob){
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.pdf';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name+'.pdf';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }).catch(function(){window.open(url,'_blank');});
 }
 
-map.on('click',closePanel);
-buildTalukaBar();
-loadTaluka();
+map.on('click', closePanel);
+
+// ─── Boot ──────────────────────────────────────────────────────────────────────
+runFirstTimeSetup();
 </script>
 </body>
 </html>
