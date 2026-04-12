@@ -203,10 +203,9 @@ function getCachedPdf(t,n){
 }
 function setCachedPdf(t,n,has){ pdfCache[pdfCacheKey(t,n)]={has:has,ts:Date.now()}; savePdfCache(); }
 
-// Check if a PDF exists via HEAD request; calls cb(bool)
+// Check if a PDF exists via HEAD request — always FRESH, no cache delay
+// So if a PDF is uploaded anytime, next tap shows it immediately
 function checkPdf(t,n,cb){
-  var cached = getCachedPdf(t,n);
-  if(cached !== null){ cb(cached); return; }
   fetch(pdfURL(t,n),{method:'HEAD'})
     .then(function(r){ var has=r.ok; setCachedPdf(t,n,has); cb(has); })
     .catch(function(){ setCachedPdf(t,n,false); cb(false); });
