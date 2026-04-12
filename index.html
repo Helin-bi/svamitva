@@ -786,12 +786,7 @@ function renderTable(){
   var html='';
   vs.forEach(function(v,i){
     var c=gc(v.cnt), dStr=userLat!==null?fd(hav(userLat,userLng,v.lat,v.lng)):'&#8212;', bw=Math.round((v.cnt/mx)*100);
-    var pdfStatus=getCachedPdf(curTaluka,v.n);
-    var pdfBtns = pdfStatus===true
-      ? '<button class="tr-view" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.n)+'\',\'_blank\')">View</button>'
-        +'<button class="tr-dl" onclick="event.stopPropagation();dlFile(\''+pdfURL(curTaluka,v.n)+'\',\''+v.n+'\')">DL</button>'
-      : pdfStatus===false ? '<button class="tr-na" disabled>No PDF</button>'
-      : '<button class="tr-na" onclick="event.stopPropagation();tapPdfCheck(\''+v.c+'\')">PDF?</button>';
+    var pdfBtns = '<span class="tr-pdf-loading" id="pdf-btn-'+v.c+'">&#8230;</span>';
     html+='<div class="tr" onclick="onRowTap(\''+v.c+'\')">'
       +'<span class="tr-rank">'+(i+1)+'</span>'
       +'<span class="tr-dot" style="background:'+c+'"></span>'
@@ -805,6 +800,19 @@ function renderTable(){
   });
   if(!html)html='<p style="text-align:center;color:#1a3050;padding:30px 0;font-size:13px;">No villages found</p>';
   document.getElementById('tbl-wrap').innerHTML=html;
+  // Fresh HEAD check for every visible village — works on both Map & Table tabs
+  vs.forEach(function(v){
+    checkPdf(curTaluka, v.n, function(has){
+      var el = document.getElementById('pdf-btn-'+v.c);
+      if(!el) return;
+      if(has){
+        el.outerHTML = '<button class="tr-view" onclick="event.stopPropagation();window.open(\''+pdfURL(curTaluka,v.n)+'\',\'_blank\')">View</button>'
+                     + '<button class="tr-dl" onclick="event.stopPropagation();dlFile(\''+pdfURL(curTaluka,v.n)+'\',\''+v.n+'\')">DL</button>';
+      } else {
+        el.outerHTML = '<button class="tr-na" disabled>No PDF</button>';
+      }
+    });
+  });
 }
 function tapPdfCheck(code){
   var v=DATA[curTaluka].villages.find(function(x){return x.c===code;}); if(!v)return;
